@@ -1,0 +1,48 @@
+﻿"""Widget visual para mostrar el cuadro de eliminatorias con estilo bracket clásico."""
+from PySide6.QtWidgets import QWidget
+from PySide6.QtCore import Qt, QRectF, QPointF
+from PySide6.QtGui import QPainter, QPen, QColor, QFont, QBrush
+from typing import Optional, Union
+
+
+class WidgetCuadroVisual(QWidget):
+    """
+    Widget que dibuja el cuadro de eliminatorias de 16 equipos con estructura simétrica.
+    El bracket se organiza con dos mitades (izquierda/derecha) que convergen en el centro.
+    """
+    
+    def __init__(self, parent=None):
+        """Inicializa el widget visual del cuadro."""
+        super().__init__(parent)
+        self.datos_cuadro = None
+        self.setMinimumSize(1400, 900)
+        
+        # Colores
+        self.color_caja = QColor(44, 62, 80)
+        self.color_borde = QColor(52, 152, 219)
+        self.color_texto = QColor(255, 255, 255)
+        self.color_linea = QColor(52, 152, 219)
+        self.color_campeon = QColor(241, 196, 15)
+        self.color_texto_campeon = QColor(44, 62, 80)
+    
+    def setData(self, data: dict):
+        """
+        Establece los datos del cuadro y actualiza la visualización.
+        
+        Args:
+            data: Diccionario con estructura:
+                {
+                    "octavos": [tupla/lista/dict, ...] x 8,
+                    "cuartos": [...] x 4,
+                    "semifinales": [...] x 2,
+                    "final": [tupla/lista/dict] x 1,
+                    "campeon": str | None
+                }
+        """
+        self.datos_cuadro = data
+        self.update()
+    
+    # Alias para compatibilidad con código existente
+    def set_datos_cuadro(self, datos: dict):
+        """Alias de setData para mantener compatibilidad."""
+        self.setData(datos)
