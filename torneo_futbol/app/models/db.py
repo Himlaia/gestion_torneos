@@ -1,5 +1,6 @@
 """Gestión de la conexión a la base de datos."""
 import sqlite3
+import sys
 from pathlib import Path
 from typing import Optional
 
@@ -14,12 +15,23 @@ def get_db_path() -> Path:
     Obtiene la ruta absoluta al archivo de base de datos.
     Crea el directorio data si no existe.
     
+    Si la aplicación está empaquetada (PyInstaller), guarda la BD
+    en el directorio del ejecutable. Si está en desarrollo, usa
+    la carpeta data/ del proyecto.
+    
     Returns:
         Path: Ruta al archivo torneo.db
     """
-    root_dir = Path(__file__).resolve().parent.parent.parent
-    data_dir = root_dir / "data"
+    # Detectar si estamos en un ejecutable empaquetado
+    if getattr(sys, 'frozen', False):
+        # Estamos en un ejecutable empaquetado
+        # sys.executable es la ruta al .exe
+        root_dir = Path(sys.executable).parent
+    else:
+        # Estamos en desarrollo
+        root_dir = Path(__file__).resolve().parent.parent.parent
     
+    data_dir = root_dir / "data"
     data_dir.mkdir(exist_ok=True)
     
     return data_dir / "torneo.db"
@@ -49,19 +61,27 @@ def get_connection() -> sqlite3.Connection:
         conn.row_factory = sqlite3.Row
         conn.execute("PRAGMA foreign_keys = ON")
         
+        # Solo imprimir info de debug si la tabla partidos ya existe
         if not _schema_printed:
             cursor = conn.cursor()
-            cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name LIKE '%part%'")
-            tablas = cursor.fetchall()
-            print(f"[APP-ESQUEMA] Tablas con 'part': {[t[0] for t in tablas]}")
+            cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='partidos'")
+            tabla_existe = cursor.fetchone()
             
-            cursor.execute("PRAGMA table_info(partidos)")
-            columnas_info = cursor.fetchall()
-            print(f"[APP-ESQUEMA] Columnas de 'partidos': {[col[1] for col in columnas_info]}")
+            if tabla_existe:
+                cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name LIKE '%part%'")
+                tablas = cursor.fetchall()
+                print(f"[APP-ESQUEMA] Tablas con 'part': {[t[0] for t in tablas]}")
+                
+                cursor.execute("PRAGMA table_info(partidos)")
+                columnas_info = cursor.fetchall()
+                print(f"[APP-ESQUEMA] Columnas de 'partidos': {[col[1] for col in columnas_info]}")
+                
+                cursor.execute("SELECT COUNT(*) FROM partidos")
+                count = cursor.fetchone()[0]
+                print(f"[APP-ESQUEMA] Total partidos en BD: {count}")
+            else:
+                print("[APP-ESQUEMA] Base de datos nueva - esperando inicialización del esquema")
             
-            cursor.execute("SELECT COUNT(*) FROM partidos")
-            count = cursor.fetchone()[0]
-            print(f"[APP-ESQUEMA] Total partidos en BD: {count}")
             _schema_printed = True
         
         return conn

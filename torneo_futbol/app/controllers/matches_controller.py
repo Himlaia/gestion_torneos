@@ -124,12 +124,6 @@ class ControladorCalendarioPartidos:
         except Exception as e:
             print(f"  ❌ ERROR conectando nuevo_partido_signal: {e}")
         
-        try:
-            self.vista.reiniciar_torneo_signal.connect(self._on_reiniciar_torneo)
-            print("  ✅ reiniciar_torneo_signal conectado a _on_reiniciar_torneo")
-        except Exception as e:
-            print(f"  ❌ ERROR conectando reiniciar_torneo_signal: {e}")
-        
         # Selección y filtros
         self.vista.partido_seleccionado_signal.connect(self._on_seleccionado)
         self.vista.filtros_changed_signal.connect(self._on_filtros_changed)

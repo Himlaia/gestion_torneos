@@ -94,9 +94,20 @@ En esta sección puedes crear, editar y eliminar equipos que participarán en el
 
 ### Ver jugadores de un equipo
 
+Hay dos formas de ver los jugadores de un equipo:
+
+**Opción 1: Panel derecho**
 1. Haz clic sobre un equipo en la lista
 2. En el panel derecho verás la pestaña **"Jugadores"**
 3. Allí puedes ver todos los jugadores del equipo y añadir nuevos
+
+**Opción 2: Ventana emergente (Nuevo)** 💡
+1. Haz **doble clic** sobre un equipo en la lista
+2. Se abrirá una ventana emergente con todos los jugadores del equipo
+3. Verás información detallada: nombre, apellidos, posición, goles y tarjetas
+4. Cierra la ventana cuando termines de consultar
+
+> 💡 **Consejo**: Usa el doble clic para consultar rápidamente los jugadores sin perder tu contexto actual.
 
 ---
 
@@ -258,7 +269,7 @@ El cuadro se divide en columnas:
 ### Colores y marcas
 
 - **Verde con borde**: El equipo ganó ese partido y avanza
-- **Dorado**: El equipo es el campeón del torneo
+- **Dorado con borde brillante**: El equipo es el campeón del torneo (se muestra con una corona 👑)
 - **Sin color**: El partido aún no se ha jugado o el equipo perdió
 
 ### Modo de configuración manual
@@ -273,15 +284,33 @@ Si aún no has generado el torneo automáticamente, puedes:
 
 Una vez que hay partidos en la base de datos, el cuadro pasa a modo solo lectura y se actualiza automáticamente cuando registras resultados.
 
+### Exportar resultados del torneo 📊
+
+Cuando ya hay un ganador del torneo, puedes exportar todos los resultados a un archivo CSV:
+
+1. Una vez finalizada la **Final** y determinado el campeón, el botón **"Exportar resultados (CSV)"** se habilitará automáticamente
+2. Haz clic en **"Exportar resultados (CSV)"**
+3. Elige dónde guardar el archivo
+4. El archivo CSV incluirá:
+   - Ronda de cada partido
+   - Fecha, hora y lugar
+   - Equipos local y visitante
+   - Marcador final
+   - Estado del partido
+   - Ganador de cada enfrentamiento
+
+> 💡 **Uso del CSV**: Puedes abrir el archivo con Excel, Google Sheets o cualquier programa de hojas de cálculo para analizar los datos, crear gráficos o compartir los resultados.
+
 ### Reiniciar el torneo
 
-Si quieres empezar de cero:
+Si quieres empezar de cero, debes eliminar los partidos desde el **Calendario de Partidos**:
 
-1. Haz clic en **"Reiniciar emparejamientos"**
-2. Confirma que deseas eliminar TODOS los partidos
-3. El cuadro volverá a estar vacío y en modo configurable
+1. Ve a la sección **"Calendario"**
+2. Selecciona los partidos que deseas eliminar
+3. Usa el botón **"Eliminar"** para cada partido
+4. El cuadro se actualizará automáticamente
 
-> ⚠️ **Cuidado**: Esta acción elimina todos los partidos, convocatorias y resultados. No se puede deshacer.
+> ⚠️ **Cuidado**: Eliminar partidos eliminará también sus convocatorias y resultados. No se puede deshacer.
 
 ---
 
@@ -353,7 +382,16 @@ No podrás eliminarlo. Primero debes eliminar todos los partidos en los que part
 
 ### ¿Puedo exportar los datos?
 
-Actualmente la aplicación no incluye funcionalidad de exportación, pero todos los datos están almacenados en la base de datos SQLite en la carpeta `data/torneo.db`.
+Sí, una vez que el torneo tiene un ganador, puedes exportar todos los resultados a formato CSV:
+
+1. Finaliza el torneo (debe haber un campeón)
+2. Ve a la sección **"Cuadro de Eliminatorias"**
+3. Haz clic en **"Exportar resultados (CSV)"**
+4. Guarda el archivo en tu ubicación preferida
+
+El archivo incluye todos los partidos con sus resultados, fechas, equipos y ganadores. Puedes abrirlo con Excel o Google Sheets.
+
+> 📝 **Nota**: También puedes acceder a los datos directamente en la base de datos SQLite ubicada en `data/torneo.db`.
 
 ### ¿Dónde se guardan los escudos de los equipos?
 
@@ -386,6 +424,7 @@ Los escudos se guardan en la carpeta `data/escudos/` con un nombre único genera
 ### Atajos útiles
 
 - **Doble clic** en un partido del calendario: Abre los detalles
+- **Doble clic** en un equipo: Muestra la lista de jugadores en una ventana emergente
 - **Enter** en los formularios: Guarda los cambios
 - **Escape** en los diálogos: Cancela sin guardar
 

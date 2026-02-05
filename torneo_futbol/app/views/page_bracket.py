@@ -28,6 +28,8 @@ class BracketWidget(QWidget):
         self.combo_finalista_right = None
         self.title_label_left = None
         self.title_label_right = None
+        self.combo_frame_left = None  # Frame del finalista izquierdo
+        self.combo_frame_right = None  # Frame del finalista derecho
         self.combos_final = []
         self.bracket_state = None
         self.setup_ui()
@@ -123,6 +125,7 @@ class BracketWidget(QWidget):
         
         combo_frame = QFrame()
         combo_frame.setObjectName("finalistaCard")
+        combo_frame.setProperty("isWinner", False)  # Propiedad para identificar al ganador
         
         combo_layout = QVBoxLayout()
         combo_layout.setSpacing(0)
@@ -144,9 +147,11 @@ class BracketWidget(QWidget):
         if side == "left":
             self.combo_finalista_left = combo
             self.title_label_left = title_label
+            self.combo_frame_left = combo_frame  # Guardar referencia al frame
         else:
             self.combo_finalista_right = combo
             self.title_label_right = title_label
+            self.combo_frame_right = combo_frame  # Guardar referencia al frame
         
         finalista_frame.setLayout(layout)
         return finalista_frame
@@ -171,7 +176,7 @@ class BracketWidget(QWidget):
         vs_label = QLabel("vs")
         vs_label.setObjectName("vsLabel")
         vs_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        vs_label.setStyleSheet("font-size: 8pt; font-weight: bold; color: #666; margin: 0px;")
+        vs_label.setStyleSheet("font-size: 8pt; font-weight: bold; margin: 0px;")
         vs_label.setMaximumHeight(14)
         
         combo_b = QComboBox()
@@ -240,26 +245,34 @@ class BracketWidget(QWidget):
             combo.blockSignals(False)
     
     def update_crown_visibility(self, ganador_equipo_id=None):
-        """Actualiza el texto del label Finalista. Añade corona solo al ganador."""
-        if self.title_label_left and self.combo_finalista_left:
+        """Actualiza el texto del label Finalista y el estilo visual. Añade corona solo al ganador."""
+        if self.title_label_left and self.combo_finalista_left and self.combo_frame_left:
             left_team_id = self.combo_finalista_left.currentData()
             # Añadir corona solo si este equipo es el ganador
             is_winner = ganador_equipo_id is not None and left_team_id == ganador_equipo_id
             self.title_label_left.setText("👑 Finalista" if is_winner else "Finalista")
+            # Actualizar propiedad visual
+            self.combo_frame_left.setProperty("isWinner", is_winner)
+            self.combo_frame_left.style().unpolish(self.combo_frame_left)
+            self.combo_frame_left.style().polish(self.combo_frame_left)
         
-        if self.title_label_right and self.combo_finalista_right:
+        if self.title_label_right and self.combo_finalista_right and self.combo_frame_right:
             right_team_id = self.combo_finalista_right.currentData()
             # Añadir corona solo si este equipo es el ganador
             is_winner = ganador_equipo_id is not None and right_team_id == ganador_equipo_id
             self.title_label_right.setText("👑 Finalista" if is_winner else "Finalista")
+            # Actualizar propiedad visual
+            self.combo_frame_right.setProperty("isWinner", is_winner)
+            self.combo_frame_right.style().unpolish(self.combo_frame_right)
+            self.combo_frame_right.style().polish(self.combo_frame_right)
 
 
 class PageCuadroEliminatorias(QWidget):
     
     randomizar_octavos_signal = Signal()
     guardar_emparejamientos_signal = Signal(list)
-    reiniciar_emparejamientos_signal = Signal()
     emparejamientos_cambiados_signal = Signal()
+    exportar_csv_signal = Signal()
     
     def __init__(self):
         super().__init__()
@@ -275,7 +288,7 @@ class PageCuadroEliminatorias(QWidget):
         layout_principal = QVBoxLayout()
         layout_principal.setContentsMargins(20, 4, 20, 12)
         layout_principal.setSpacing(8)
-        # Eliminado AlignTop para permitir centrado vertical
+        layout_principal.setAlignment(Qt.AlignmentFlag.AlignTop)
         
         self.crear_cabecera(layout_principal)
         
@@ -294,11 +307,8 @@ class PageCuadroEliminatorias(QWidget):
         
         card_layout.addWidget(self.bracket_widget, 1)
         
-        # Añadir stretcher superior para centrar el contenido
-        layout_principal.addStretch(1)
-        layout_principal.addWidget(content_card, 0)
-        # Añadir stretcher inferior para centrar el contenido
-        layout_principal.addStretch(1)
+        # Hacer que el content_card ocupe todo el espacio disponible
+        layout_principal.addWidget(content_card, 1)
         
         self.setLayout(layout_principal)
         
@@ -331,12 +341,14 @@ class PageCuadroEliminatorias(QWidget):
         self.randomizar_octavos = QPushButton("Randomizar octavos")
         self.guardar_emparejamientos = QPushButton("Guardar emparejamientos")
         self.guardar_emparejamientos.setObjectName("successButton")
-        self.reiniciar_emparejamientos = QPushButton("Reiniciar emparejamientos")
-        self.reiniciar_emparejamientos.setObjectName("dangerButton")
+        
+        self.exportar_csv = QPushButton("Exportar resultados (CSV)")
+        self.exportar_csv.setObjectName("primaryButton")
+        self.exportar_csv.setEnabled(False)  # Inicialmente deshabilitado
         
         layout_botones.addWidget(self.randomizar_octavos)
         layout_botones.addWidget(self.guardar_emparejamientos)
-        layout_botones.addWidget(self.reiniciar_emparejamientos)
+        layout_botones.addWidget(self.exportar_csv)
         layout_botones.addStretch()
         
         layout_padre.addLayout(layout_botones)
@@ -345,7 +357,7 @@ class PageCuadroEliminatorias(QWidget):
         # Conectar "Randomizar octavos" a la señal que el controlador escucha
         self.randomizar_octavos.clicked.connect(self._on_randomizar_wrapper)
         self.guardar_emparejamientos.clicked.connect(self.on_guardar_emparejamientos)
-        self.reiniciar_emparejamientos.clicked.connect(self.on_reiniciar_emparejamientos)
+        self.exportar_csv.clicked.connect(self.exportar_csv_signal.emit)
     
     def _on_randomizar_wrapper(self):
         """Wrapper que emite la señal para que el controlador maneje la randomización.
@@ -402,47 +414,6 @@ class PageCuadroEliminatorias(QWidget):
             "Octavos randomizados",
             "Los emparejamientos de octavos se han generado aleatoriamente."
         )
-    
-    def on_reiniciar_emparejamientos(self):
-        """Reinicia todos los emparejamientos del bracket."""
-        respuesta = QMessageBox.question(
-            self,
-            "Confirmar reinicio",
-            "¿Está seguro de que desea reiniciar todos los emparejamientos?",
-            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-            QMessageBox.StandardButton.No
-        )
-        
-        if respuesta == QMessageBox.StandardButton.Yes:
-            # Resetear todos los combos
-            all_combos = self.bracket_widget.get_all_combos()
-            for combo in all_combos:
-                combo.blockSignals(True)
-                combo.setCurrentIndex(0)  # "Selecciona equipo..."
-                combo.blockSignals(False)
-            
-            # Borrar estado guardado
-            self.bracket_widget.bracket_state = None
-            
-            QMessageBox.information(
-                self,
-                "Reinicio completado",
-                "Todos los emparejamientos han sido reiniciados."
-            )
-    
-    def _on_reiniciar_wrapper(self):
-        """Wrapper para emitir la señal de reinicio."""
-        try:
-            print("[PAGE BRACKET] _on_reiniciar_wrapper - Emitiendo reiniciar_emparejamientos_signal")
-            self.reiniciar_emparejamientos_signal.emit()
-        except Exception as e:
-            print(f"[PAGE BRACKET] ❌ ERROR en _on_reiniciar_wrapper: {e}")
-            from PySide6.QtWidgets import QMessageBox
-            QMessageBox.critical(
-                self,
-                "Error de reinicio",
-                f"Error al intentar reiniciar emparejamientos:\n{str(e)}"
-            )
     
     def on_guardar_emparejamientos(self):
         """Guarda el estado actual de todos los emparejamientos."""
@@ -703,10 +674,6 @@ class PageCuadroEliminatorias(QWidget):
                                             stop:1 rgba(40, 167, 69, 0.15));
                                         border: 2px solid #28a745;
                                         font-weight: bold;
-                                        color: #28a745;
-                                    }
-                                    QComboBox:disabled {
-                                        color: #1e7e34;
                                     }
                                 """)
                     
@@ -729,10 +696,6 @@ class PageCuadroEliminatorias(QWidget):
                                                 stop:1 rgba(40, 167, 69, 0.15));
                                         border: 2px solid #28a745;
                                         font-weight: bold;
-                                        color: #28a745;
-                                    }
-                                    QComboBox:disabled {
-                                        color: #1e7e34;
                                     }
                                 """)
                         # Rellenar lado derecho
@@ -764,10 +727,6 @@ class PageCuadroEliminatorias(QWidget):
                                             stop:1 rgba(40, 167, 69, 0.15));
                                         border: 2px solid #28a745;
                                         font-weight: bold;
-                                        color: #28a745;
-                                    }
-                                    QComboBox:disabled {
-                                        color: #1e7e34;
                                     }
                                 """)
                     
@@ -790,10 +749,6 @@ class PageCuadroEliminatorias(QWidget):
                                                 stop:1 rgba(40, 167, 69, 0.15));
                                             border: 2px solid #28a745;
                                             font-weight: bold;
-                                            color: #28a745;
-                                        }
-                                        QComboBox:disabled {
-                                            color: #1e7e34;
                                         }
                                     """)
         
@@ -819,10 +774,6 @@ class PageCuadroEliminatorias(QWidget):
                                         stop:1 rgba(255, 215, 0, 0.2));
                                     border: 2px solid #FFD700;
                                     font-weight: bold;
-                                    color: #B8860B;
-                                }
-                                QComboBox:disabled {
-                                    color: #8B6914;
                                 }
                             """)
             
@@ -844,10 +795,6 @@ class PageCuadroEliminatorias(QWidget):
                                         stop:1 rgba(255, 215, 0, 0.2));
                                     border: 2px solid #FFD700;
                                     font-weight: bold;
-                                    color: #B8860B;
-                                }
-                                QComboBox:disabled {
-                                    color: #8B6914;
                                 }
                             """)
         
@@ -858,6 +805,12 @@ class PageCuadroEliminatorias(QWidget):
         
         if self.bracket_widget:
             self.bracket_widget.update_crown_visibility(ganador_id)
+        
+        # Habilitar bot\u00f3n de exportar CSV si hay ganador
+        if ganador_id is not None:
+            self.exportar_csv.setEnabled(True)
+        else:
+            self.exportar_csv.setEnabled(False)
     
     def actualizar_cuadro_visual(self, datos: dict):
         """Alias para set_cuadro para compatibilidad."""
@@ -888,7 +841,6 @@ class PageCuadroEliminatorias(QWidget):
             
             self.randomizar_octavos.setEnabled(False)
             self.guardar_emparejamientos.setEnabled(False)
-            self.reiniciar_emparejamientos.setEnabled(False)
             
         elif modo == "configurable":
             for combo in all_combos:
@@ -896,7 +848,6 @@ class PageCuadroEliminatorias(QWidget):
             
             self.randomizar_octavos.setEnabled(True)
             self.guardar_emparejamientos.setEnabled(True)
-            self.reiniciar_emparejamientos.setEnabled(True)
 
 
 PageBracket = PageCuadroEliminatorias

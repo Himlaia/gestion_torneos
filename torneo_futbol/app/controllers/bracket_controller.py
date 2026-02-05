@@ -75,6 +75,24 @@ class ControladorCuadroEliminatorias:
                 self.vista.reiniciar_cuadro_signal.connect(self._on_reiniciar)
         except Exception as e:
             print(f"[BRACKET CONTROLLER] Error conectando reiniciar: {e}")
+        
+        # Conectar señal de exportar CSV
+        try:
+            if hasattr(self.vista, 'exportar_csv_signal'):
+                print("[BRACKET CONTROLLER] Conectando exportar_csv_signal...")
+                self.vista.exportar_csv_signal.connect(self._on_exportar_csv)
+                print("[BRACKET CONTROLLER] ✅ exportar_csv_signal conectada")
+        except Exception as e:
+            print(f"[BRACKET CONTROLLER] ❌ Error conectando exportar_csv: {e}")
+        
+        # Conectar señal de reiniciar torneo
+        try:
+            if hasattr(self.vista, 'reiniciar_torneo_signal'):
+                print("[BRACKET CONTROLLER] Conectando reiniciar_torneo_signal...")
+                self.vista.reiniciar_torneo_signal.connect(self._on_reiniciar_torneo_desde_bracket)
+                print("[BRACKET CONTROLLER] ✅ reiniciar_torneo_signal conectada")
+        except Exception as e:
+            print(f"[BRACKET CONTROLLER] ❌ Error conectando reiniciar_torneo_signal: {e}")
     
     def _conectar_event_bus(self):
         """Conecta el Event Bus para escuchar cambios externos."""
@@ -360,6 +378,21 @@ class ControladorCuadroEliminatorias:
                 f"Error inesperado al crear octavos:\n\n{str(e)}"
             )
     
+    def _on_reiniciar_torneo_desde_bracket(self):
+        """Maneja la señal de reiniciar torneo desde el cuadro de clasificación."""
+        print("[BRACKET CONTROLLER] _on_reiniciar_torneo_desde_bracket ejecutado")
+        
+        # Delegar al controlador de partidos que tiene la lógica de reinicio
+        if self.matches_controller:
+            self.matches_controller._on_reiniciar_torneo()
+        else:
+            print("[BRACKET CONTROLLER] ⚠️ matches_controller no está disponible")
+            QMessageBox.warning(
+                self.vista,
+                "Error",
+                "No se pudo acceder al controlador de partidos para reiniciar el torneo."
+            )
+    
     def _on_guardar_emparejamientos(self):
         """Maneja la acción de guardar los emparejamientos configurados."""
         # Obtener emparejamientos de la vista
@@ -568,4 +601,88 @@ class ControladorCuadroEliminatorias:
         """
         print("[BracketController] Bracket actualizado externamente, recargando...")
         self.cargar_cuadro()
+    
+    def _on_exportar_csv(self):
+        """Exporta los resultados del torneo a un archivo CSV."""
+        import csv
+        from PySide6.QtWidgets import QFileDialog
+        from datetime import datetime
+        
+        try:
+            # Solicitar ruta de guardado
+            nombre_archivo = f"resultados_torneo_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
+            ruta, _ = QFileDialog.getSaveFileName(
+                self.vista,
+                "Guardar resultados",
+                nombre_archivo,
+                "CSV Files (*.csv)"
+            )
+            
+            if not ruta:
+                return  # Usuario canceló
+            
+            # Obtener todos los partidos del torneo
+            partidos = MatchModel.listar_partidos()
+            
+            if not partidos:
+                QMessageBox.warning(
+                    self.vista,
+                    "Sin datos",
+                    "No hay partidos para exportar."
+                )
+                return
+            
+            # Crear el CSV
+            with open(ruta, 'w', newline='', encoding='utf-8-sig') as archivo_csv:
+                campos = [
+                    'Ronda', 'Fecha', 'Hora', 'Lugar',
+                    'Equipo Local', 'Equipo Visitante',
+                    'Goles Local', 'Goles Visitante',
+                    'Estado', 'Ganador'
+                ]
+                
+                escritor = csv.DictWriter(archivo_csv, fieldnames=campos)
+                escritor.writeheader()
+                
+                for partido in partidos:
+                    # Determinar ganador
+                    ganador = "-"
+                    if partido.get('estado') == 'finalizado':
+                        goles_local = partido.get('goles_local', 0) or 0
+                        goles_visitante = partido.get('goles_visitante', 0) or 0
+                        if goles_local > goles_visitante:
+                            ganador = partido.get('local_nombre', 'Local')
+                        elif goles_visitante > goles_local:
+                            ganador = partido.get('visitante_nombre', 'Visitante')
+                        else:
+                            ganador = "Empate"
+                    
+                    fila = {
+                        'Ronda': partido.get('ronda', '').title(),
+                        'Fecha': partido.get('fecha', '-'),
+                        'Hora': partido.get('hora', '-'),
+                        'Lugar': partido.get('lugar', '-'),
+                        'Equipo Local': partido.get('local_nombre', 'TBD'),
+                        'Equipo Visitante': partido.get('visitante_nombre', 'TBD'),
+                        'Goles Local': partido.get('goles_local', '-') if partido.get('estado') == 'finalizado' else '-',
+                        'Goles Visitante': partido.get('goles_visitante', '-') if partido.get('estado') == 'finalizado' else '-',
+                        'Estado': partido.get('estado', 'pendiente').title(),
+                        'Ganador': ganador
+                    }
+                    
+                    escritor.writerow(fila)
+            
+            QMessageBox.information(
+                self.vista,
+                "Éxito",
+                f"Resultados exportados correctamente a:\n{ruta}"
+            )
+            
+        except Exception as e:
+            print(f"[BRACKET CONTROLLER] Error exportando CSV: {e}")
+            QMessageBox.critical(
+                self.vista,
+                "Error",
+                f"No se pudo exportar el archivo CSV:\n{str(e)}"
+            )
 

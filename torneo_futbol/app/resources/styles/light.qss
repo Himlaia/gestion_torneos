@@ -1302,6 +1302,16 @@ QWidget#bracketRoot {
     background: transparent;
 }
 
+/* Títulos de rondas - texto oscuro */
+QWidget#bracketRoot QLabel#roundTitle {
+    color: #2c3e50 !important;
+}
+
+/* Label "vs" - texto oscuro */
+QWidget#bracketRoot QLabel#vsLabel {
+    color: #7f8c8d !important;
+}
+
 QWidget#bracketRoot QComboBox {
     background-color: #ffffff;
     color: #2c3e50;
@@ -1379,10 +1389,43 @@ QFrame#matchCard {
     border-radius: 6px;
 }
 
+/* Forzar texto oscuro en todos los labels dentro de matchCard */
+QFrame#matchCard QLabel {
+    color: #2c3e50 !important;
+}
+
+/* Forzar texto oscuro en QComboBox dentro de matchCard */
+QFrame#matchCard QComboBox {
+    color: #2c3e50 !important;
+}
+
+/* Estilo base para finalistas (sin ganador) */
 QFrame#finalistaCard {
     background-color: rgba(255, 255, 255, 0.85);
     border: 1px solid rgba(22, 160, 133, 0.3);
     border-radius: 6px;
+}
+
+/* Forzar texto oscuro en todos los labels dentro de finalistaCard */
+QFrame#finalistaCard QLabel {
+    color: #2c3e50 !important;
+}
+
+/* Forzar texto oscuro en QComboBox dentro de finalistaCard */
+QFrame#finalistaCard QComboBox {
+    color: #2c3e50 !important;
+}
+
+/* Estilo especial solo para el ganador - borde dorado */
+QFrame#finalistaCard[isWinner="true"] {
+    background-color: rgba(255, 215, 0, 0.25);
+    border: 2px solid #DAA520;
+    border-radius: 6px;
+}
+
+QFrame#finalistaCard[isWinner="true"] QComboBox {
+    color: #000000 !important;
+    font-weight: bold;
 }
 
 /* ===== Página de Ayuda - README ===== */

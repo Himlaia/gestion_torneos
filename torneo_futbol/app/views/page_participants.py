@@ -75,8 +75,8 @@ class PageGestionParticipantes(QWidget):
         
         # Layout principal
         layout_principal = QVBoxLayout()
-        layout_principal.setContentsMargins(20, 4, 20, 12)
-        layout_principal.setSpacing(8)
+        layout_principal.setContentsMargins(20, 20, 20, 20)
+        layout_principal.setSpacing(12)
         layout_principal.setAlignment(Qt.AlignmentFlag.AlignTop)
         
         # Cabecera
