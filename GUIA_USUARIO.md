@@ -217,7 +217,7 @@ Una vez jugado el partido:
 3. Completa los datos:
    - **Goles Local**: Número de goles del equipo local
    - **Goles Visitante**: Número de goles del equipo visitante
-   - **Penaltis** (si hubo empate): Marca la casilla y añade los resultados de penaltis
+   - **Penaltis** (se habilita automáticamente si hay empate): Añade los resultados de la tanda de penaltis
 4. Haz clic en **"Detalles de goles..."** para asignar quién marcó cada gol:
    - Haz clic en **"+ Añadir Gol"**
    - Selecciona el equipo, jugador y minuto
@@ -336,7 +336,7 @@ Para un torneo completo necesitas **16 equipos**. Si tienes menos, puedes crear 
 
 ### ¿Qué pasa si hay empate en un partido?
 
-Cuando registras un empate (mismo número de goles), debes marcar la casilla de "Penaltis" e indicar el resultado de la tanda de penaltis para determinar al ganador.
+Cuando registras un empate (mismo número de goles), los campos de penaltis se habilitarán automáticamente. Solo debes indicar el resultado de la tanda de penaltis para determinar al ganador.
 
 ### ¿Puedo editar un resultado después de guardarlo?
 

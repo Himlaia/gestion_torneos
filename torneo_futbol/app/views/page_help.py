@@ -1,6 +1,6 @@
 """Página de ayuda."""
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QFrame, QTextBrowser, QSizePolicy
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QUrl
 from pathlib import Path
 
 
@@ -48,10 +48,14 @@ class PageHelp(QWidget):
         # QTextBrowser para renderizar Markdown con colores
         self.readme_browser = QTextBrowser()
         self.readme_browser.setObjectName("HelpReadme")
-        self.readme_browser.setOpenExternalLinks(False)
+        self.readme_browser.setOpenExternalLinks(False)  # Links externos deshabilitados
+        self.readme_browser.setOpenLinks(True)  # Links internos (anchors) habilitados
         self.readme_browser.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         self.readme_browser.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
         self.readme_browser.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        
+        # Conectar evento de click en anchor para navegación interna
+        self.readme_browser.anchorClicked.connect(self.on_anchor_clicked)
         
         # Cargar contenido del README
         self.cargar_readme()
@@ -267,3 +271,12 @@ Si encuentras algún problema o tienes sugerencias, consulta la sección de **Cr
 
 *Gestión de Torneo de Fútbol - Aplicación de escritorio con PySide6*
 """
+    
+    def on_anchor_clicked(self, url: QUrl):
+        """Maneja clicks en anchors para navegación interna."""
+        # Si es un anchor interno (comienza con #), hacer scroll a esa sección
+        fragment = url.fragment()
+        if fragment:
+            # Scroll a la sección usando el anchor
+            self.readme_browser.scrollToAnchor(fragment)
+        # Si no tiene fragment, ignorar (no es un link interno válido)

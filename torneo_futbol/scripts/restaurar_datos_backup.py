@@ -47,9 +47,13 @@ def restaurar_desde_backup(backup_db_path: str, destino_db_path: str):
         cursor_destino.execute("SELECT COUNT(*) FROM participantes")
         participantes_existentes = cursor_destino.fetchone()[0]
         
+        cursor_destino.execute("SELECT COUNT(*) FROM partidos")
+        partidos_existentes = cursor_destino.fetchone()[0]
+        
         print(f"\n📊 Estado actual de la BD:")
         print(f"   - Equipos: {equipos_existentes}")
         print(f"   - Participantes: {participantes_existentes}")
+        print(f"   - Partidos: {partidos_existentes}")
         
         # Verificar datos en backup
         cursor_backup.execute("SELECT COUNT(*) FROM equipos")
@@ -58,9 +62,13 @@ def restaurar_desde_backup(backup_db_path: str, destino_db_path: str):
         cursor_backup.execute("SELECT COUNT(*) FROM participantes")
         participantes_backup = cursor_backup.fetchone()[0]
         
+        cursor_backup.execute("SELECT COUNT(*) FROM partidos")
+        partidos_backup = cursor_backup.fetchone()[0]
+        
         print(f"\n📦 Datos en el BACKUP:")
         print(f"   - Equipos: {equipos_backup}")
         print(f"   - Participantes: {participantes_backup}")
+        print(f"   - Partidos: {partidos_backup}")
         
         if equipos_existentes > 0 or participantes_existentes > 0:
             print(f"\n⚠️  ADVERTENCIA: La BD actual tiene datos.")
@@ -154,6 +162,49 @@ def restaurar_desde_backup(backup_db_path: str, destino_db_path: str):
         
         print(f"   ✅ {len(participantes)} participantes restaurados")
         
+        # Restaurar partidos
+        print("\n📥 Restaurando partidos...")
+        cursor_backup.execute("SELECT * FROM partidos")
+        partidos = cursor_backup.fetchall()
+        
+        # Obtener nombres de columnas de partidos en backup
+        columnas_partidos = [desc[0] for desc in cursor_backup.description]
+        
+        for partido in partidos:
+            # Construir la consulta dinámicamente según las columnas disponibles
+            columnas_str = ", ".join(columnas_partidos)
+            placeholders = ", ".join(["?" for _ in columnas_partidos])
+            valores = tuple(partido[col] for col in columnas_partidos)
+            
+            cursor_destino.execute(f"""
+                INSERT INTO partidos ({columnas_str})
+                VALUES ({placeholders})
+            """, valores)
+        
+        print(f"   ✅ {len(partidos)} partidos restaurados")
+        
+        # Restaurar goles si existen
+        cursor_backup.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='goles'")
+        if cursor_backup.fetchone():
+            print("\n📥 Restaurando goles...")
+            cursor_backup.execute("SELECT * FROM goles")
+            goles = cursor_backup.fetchall()
+            
+            if goles:
+                columnas_goles = [desc[0] for desc in cursor_backup.description]
+                
+                for gol in goles:
+                    columnas_str = ", ".join(columnas_goles)
+                    placeholders = ", ".join(["?" for _ in columnas_goles])
+                    valores = tuple(gol[col] for col in columnas_goles)
+                    
+                    cursor_destino.execute(f"""
+                        INSERT INTO goles ({columnas_str})
+                        VALUES ({placeholders})
+                    """, valores)
+                
+                print(f"   ✅ {len(goles)} goles restaurados")
+        
         # Confirmar cambios
         conn_destino.commit()
         
@@ -164,12 +215,20 @@ def restaurar_desde_backup(backup_db_path: str, destino_db_path: str):
         cursor_destino.execute("SELECT COUNT(*) FROM participantes")
         participantes_final = cursor_destino.fetchone()[0]
         
+        cursor_destino.execute("SELECT COUNT(*) FROM partidos")
+        partidos_final = cursor_destino.fetchone()[0]
+        
+        cursor_destino.execute("SELECT COUNT(*) FROM goles")
+        goles_final = cursor_destino.fetchone()[0]
+        
         print("\n" + "=" * 70)
         print("✅ RESTAURACIÓN COMPLETADA CON ÉXITO")
         print("=" * 70)
         print(f"\n📊 Estado final de la BD:")
         print(f"   - Equipos: {equipos_final}")
         print(f"   - Participantes: {participantes_final}")
+        print(f"   - Partidos: {partidos_final}")
+        print(f"   - Goles: {goles_final}")
         print(f"\n💾 Base de datos actualizada: {destino_path}")
         
         return True

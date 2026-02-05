@@ -25,5 +25,8 @@ DB_PATH = DATA_DIR / DB_NAME
 # Tema por defecto
 DEFAULT_THEME = "light"
 
+# Versión de la aplicación
+VERSION = "1.0.0"
+
 # Asegurar que el directorio de datos existe
 DATA_DIR.mkdir(exist_ok=True)
