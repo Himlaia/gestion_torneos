@@ -5,9 +5,12 @@ from PySide6.QtWidgets import QMessageBox, QFileDialog
 from PySide6.QtCore import QObject
 
 from app.views.page_teams import PageGestionEquipos
+from app.views.dialogs.dialog_jugadores_equipo import DialogJugadoresEquipo
 from app.models.team_model import TeamModel
+from app.models.participant_model import ParticipantModel
 from app.models.db import DbError
 from app.services.event_bus import get_event_bus
+from app.config import DATA_DIR
 
 
 class ControladorGestionEquipos(QObject):
@@ -47,6 +50,7 @@ class ControladorGestionEquipos(QObject):
         self.vista.buscar_equipo_changed_signal.connect(self._on_buscar)
         self.vista.equipo_seleccionado_signal.connect(self._on_equipo_seleccionado)
         self.vista.seleccionar_escudo_signal.connect(self._on_seleccionar_escudo)
+        self.vista.ver_jugadores_equipo_signal.connect(self._on_ver_jugadores)
     
     def cargar_tabla(self, busqueda: str = None):
         """
@@ -326,8 +330,7 @@ class ControladorGestionEquipos(QObject):
         if archivo:
             try:
                 # Crear directorio de escudos si no existe
-                ruta_proyecto = Path(__file__).resolve().parent.parent.parent
-                dir_escudos = ruta_proyecto / "data" / "escudos"
+                dir_escudos = DATA_DIR / "escudos"
                 dir_escudos.mkdir(parents=True, exist_ok=True)
                 
                 # Generar nombre único para el escudo
@@ -345,8 +348,8 @@ class ControladorGestionEquipos(QObject):
                 # Copiar archivo
                 shutil.copy2(archivo, ruta_destino)
                 
-                # Guardar ruta relativa
-                self.escudo_temporal = str(ruta_destino.relative_to(ruta_proyecto))
+                # Guardar ruta relativa desde DATA_DIR
+                self.escudo_temporal = str(ruta_destino.relative_to(DATA_DIR.parent))
                 
                 # Actualizar preview en la vista (cargar imagen)
                 self.vista.cargar_escudo(self.escudo_temporal)
@@ -363,4 +366,32 @@ class ControladorGestionEquipos(QObject):
                     self.vista,
                     "Error al copiar escudo",
                     f"No se pudo copiar el archivo del escudo:\n{str(e)}"
-                )
+                )    
+    def _on_ver_jugadores(self, id_equipo: int, nombre_equipo: str):
+        """
+        Muestra un diálogo con los jugadores del equipo.
+        
+        Args:
+            id_equipo: ID del equipo
+            nombre_equipo: Nombre del equipo
+        """
+        try:
+            # Obtener jugadores del equipo
+            jugadores = ParticipantModel.listar_jugadores_por_equipo(id_equipo)
+            
+            # Mostrar diálogo
+            dialogo = DialogJugadoresEquipo(nombre_equipo, jugadores, self.vista)
+            dialogo.exec()
+            
+        except DbError as e:
+            QMessageBox.critical(
+                self.vista,
+                "Error",
+                f"Error al cargar los jugadores del equipo:\n{str(e)}"
+            )
+        except Exception as e:
+            QMessageBox.critical(
+                self.vista,
+                "Error inesperado",
+                f"Error al mostrar jugadores:\n{str(e)}"
+            )

@@ -10,6 +10,8 @@ from PySide6.QtSvg import QSvgRenderer
 from pathlib import Path
 from typing import Optional
 
+from app.config import DATA_DIR
+
 
 class PageGestionEquipos(QWidget):
     """Página para la gestión de equipos."""
@@ -23,6 +25,7 @@ class PageGestionEquipos(QWidget):
     cancelar_edicion_signal = Signal()
     buscar_equipo_changed_signal = Signal(str)
     equipo_seleccionado_signal = Signal(dict)
+    ver_jugadores_equipo_signal = Signal(int, str)  # id_equipo, nombre_equipo
     
     def __init__(self):
         """Inicializa la página de equipos."""
@@ -251,6 +254,11 @@ class PageGestionEquipos(QWidget):
         self.tabla_equipos.itemSelectionChanged.connect(
             self.on_seleccion_tabla_changed
         )
+        
+        # Doble clic en tabla para ver jugadores
+        self.tabla_equipos.cellDoubleClicked.connect(
+            self.on_doble_clic_tabla
+        )
     
     def on_seleccion_tabla_changed(self):
         """Maneja el cambio de selección en la tabla."""
@@ -258,6 +266,21 @@ class PageGestionEquipos(QWidget):
         if fila_seleccionada >= 0:
             datos = self.obtener_datos_fila(fila_seleccionada)
             self.equipo_seleccionado_signal.emit(datos)
+    
+    def on_doble_clic_tabla(self, fila: int, columna: int):
+        """
+        Maneja el doble clic en la tabla para mostrar jugadores del equipo.
+        
+        Args:
+            fila: Fila donde se hizo doble clic
+            columna: Columna donde se hizo doble clic
+        """
+        datos = self.obtener_datos_fila(fila)
+        id_equipo = datos.get('id')
+        nombre_equipo = datos.get('nombre', 'Equipo')
+        
+        if id_equipo:
+            self.ver_jugadores_equipo_signal.emit(id_equipo, nombre_equipo)
     
     def obtener_datos_fila(self, fila: int) -> dict:
         """
@@ -271,7 +294,10 @@ class PageGestionEquipos(QWidget):
         """
         datos = {}
         if fila >= 0 and fila < self.tabla_equipos.rowCount():
-            datos['nombre'] = self.tabla_equipos.item(fila, 0).text()
+            # Obtener el item de nombre que contiene el ID en UserRole
+            item_nombre = self.tabla_equipos.item(fila, 0)
+            datos['id'] = item_nombre.data(Qt.ItemDataRole.UserRole) if item_nombre else None
+            datos['nombre'] = item_nombre.text() if item_nombre else ''
             datos['colores'] = self.tabla_equipos.item(fila, 1).text()
             # Leer la ruta del escudo desde UserRole
             item_escudo = self.tabla_equipos.item(fila, 2)
@@ -294,9 +320,11 @@ class PageGestionEquipos(QWidget):
             fila = self.tabla_equipos.rowCount()
             self.tabla_equipos.insertRow(fila)
             
-            self.tabla_equipos.setItem(
-                fila, 0, QTableWidgetItem(str(equipo.get('nombre', '')))
-            )
+            # Columna nombre - Guardar ID en UserRole
+            item_nombre = QTableWidgetItem(str(equipo.get('nombre', '')))
+            item_nombre.setData(Qt.ItemDataRole.UserRole, equipo.get('id'))
+            self.tabla_equipos.setItem(fila, 0, item_nombre)
+            
             self.tabla_equipos.setItem(
                 fila, 1, QTableWidgetItem(str(equipo.get('colores', '')))
             )
@@ -421,8 +449,8 @@ class PageGestionEquipos(QWidget):
         # Construir ruta absoluta si es relativa
         ruta = Path(ruta_escudo)
         if not ruta.is_absolute():
-            ruta_proyecto = Path(__file__).resolve().parent.parent.parent
-            ruta = ruta_proyecto / ruta_escudo
+            # Usar DATA_DIR como base para rutas relativas
+            ruta = DATA_DIR.parent / ruta_escudo
         
         # Verificar si el archivo existe
         if not ruta.exists():

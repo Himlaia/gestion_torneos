@@ -1125,9 +1125,19 @@ QWidget#bracketRoot {
     background: transparent;
 }
 
+/* Títulos de rondas - texto blanco */
+QWidget#bracketRoot QLabel#roundTitle {
+    color: #ffffff !important;
+}
+
+/* Label "vs" - texto blanco */
+QWidget#bracketRoot QLabel#vsLabel {
+    color: #ffffff !important;
+}
+
 QWidget#bracketRoot QComboBox {
     background-color: #3e3e3e;
-    color: #e0e0e0;
+    color: #ffffff;
     border: 1px solid #555555;
     border-radius: 4px;
     padding: 4px 8px;
@@ -1188,12 +1198,12 @@ QWidget#bracketRoot QComboBox QAbstractItemView::item:hover {
 
 QWidget#bracketRoot QComboBox QAbstractItemView::item:selected {
     background-color: #16a085;
-    color: #ffffff;
+    color: #ffffff !important;
 }
 
 QWidget#bracketRoot QComboBox QAbstractItemView::item:selected:hover {
     background-color: #138d75;
-    color: #ffffff;
+    color: #ffffff !important;
 }
 
 QFrame#matchCard {
@@ -1202,10 +1212,60 @@ QFrame#matchCard {
     border-radius: 6px;
 }
 
+/* Forzar texto blanco en todos los labels dentro de matchCard */
+QFrame#matchCard QLabel {
+    color: #ffffff !important;
+}
+
+/* Forzar texto blanco en QComboBox dentro de matchCard */
+QFrame#matchCard QComboBox {
+    color: #ffffff !important;
+}
+
+/* Estilo base para finalistas (sin ganador) */
 QFrame#finalistaCard {
     background-color: rgba(45, 45, 45, 0.85);
     border: 1px solid rgba(22, 160, 133, 0.3);
     border-radius: 6px;
+}
+
+/* Forzar texto blanco en todos los labels dentro de finalistaCard */
+QFrame#finalistaCard QLabel {
+    color: #ffffff !important;
+}
+
+/* Forzar texto blanco en QComboBox dentro de finalistaCard */
+QFrame#finalistaCard QComboBox {
+    color: #ffffff !important;
+}
+
+/* Estilo especial solo para el ganador - borde dorado y fondo más claro */
+QFrame#finalistaCard[isWinner="true"] {
+    background-color: rgba(255, 215, 0, 0.15);
+    border: 2px solid #ffd700;
+    border-radius: 6px;
+}
+
+/* Forzar texto blanco en el combo del ganador - con especificidad completa */
+QWidget#bracketRoot QFrame#finalistaCard[isWinner="true"] QComboBox {
+    color: #ffffff !important;
+    font-weight: bold;
+}
+
+QWidget#bracketRoot QFrame#finalistaCard[isWinner="true"] QComboBox QAbstractItemView {
+    color: #ffffff !important;
+}
+
+QWidget#bracketRoot QFrame#finalistaCard[isWinner="true"] QComboBox QAbstractItemView::item {
+    color: #ffffff !important;
+}
+
+QWidget#bracketRoot QFrame#finalistaCard[isWinner="true"] QComboBox QAbstractItemView::item:selected {
+    color: #ffffff !important;
+}
+
+QWidget#bracketRoot QFrame#finalistaCard[isWinner="true"] QComboBox QAbstractItemView::item:hover {
+    color: #ffffff !important;
 }
 
 /* ===== Página de Ayuda - README ===== */

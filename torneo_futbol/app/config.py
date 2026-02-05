@@ -1,10 +1,20 @@
 """Configuración de la aplicación."""
 import os
+import sys
 from pathlib import Path
 
 # Rutas base
-BASE_DIR = Path(__file__).resolve().parent.parent
-DATA_DIR = BASE_DIR / "data"
+if getattr(sys, 'frozen', False):
+    # Estamos en un ejecutable empaquetado
+    # sys._MEIPASS es el directorio temporal donde PyInstaller desempaqueta los archivos
+    BASE_DIR = Path(sys._MEIPASS)
+    # DATA_DIR debe estar donde está el .exe para persistencia
+    DATA_DIR = Path(sys.executable).parent / "data"
+else:
+    # Estamos en desarrollo
+    BASE_DIR = Path(__file__).resolve().parent.parent
+    DATA_DIR = BASE_DIR / "data"
+
 RESOURCES_DIR = BASE_DIR / "app" / "resources"
 STYLES_DIR = RESOURCES_DIR / "styles"
 
