@@ -127,6 +127,10 @@ class EventBus(QObject):
         """Emite evento de avance de fase."""
         self.phase_advanced.emit(phase, match_id)
         self.bracket_updated.emit()
+    
+    def emit_bracket_updated(self):
+        """Emite evento de actualización del cuadro de eliminatorias."""
+        self.bracket_updated.emit()
 
 
 # Instancia singleton del event bus

@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>DialogParticipante</class>
+ <widget class="QDialog" name="DialogParticipante">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>500</width>
+    <height>550</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Nuevo/Editar Participante</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QLabel" name="labelTitle">
+     <property name="text">
+      <string>Datos del Participante</string>
+     </property>
+     <property name="styleSheet">
+      <string>font-size: 18px; font-weight: bold;</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QFormLayout" name="formLayout">
+     <item row="0" column="0">
+      <widget class="QLabel" name="labelNombre">
+       <property name="text">
+        <string>Nombre:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QLineEdit" name="txtNombre">
+       <property name="placeholderText">
+        <string>Nombre</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="labelApellidos">
+       <property name="text">
+        <string>Apellidos:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QLineEdit" name="txtApellidos">
+       <property name="placeholderText">
+        <string>Apellidos</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="labelFechaNac">
+       <property name="text">
+        <string>Fecha Nacimiento:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QDateEdit" name="dateFechaNac">
+       <property name="displayFormat">
+        <string>dd/MM/yyyy</string>
+       </property>
+       <property name="calendarPopup">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0">
+      <widget class="QLabel" name="labelCurso">
+       <property name="text">
+        <string>Curso:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="1">
+      <widget class="QComboBox" name="cmbCurso">
+       <item>
+        <property name="text">
+         <string>1º ESO</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>2º ESO</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>3º ESO</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>4º ESO</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item row="4" column="0">
+      <widget class="QLabel" name="labelRol">
+       <property name="text">
+        <string>Rol:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="1">
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <item>
+        <widget class="QCheckBox" name="chkJugador">
+         <property name="text">
+          <string>Jugador</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="chkArbitro">
+         <property name="text">
+          <string>Árbitro</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item row="5" column="0">
+      <widget class="QLabel" name="labelPosicion">
+       <property name="text">
+        <string>Posición:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="1">
+      <widget class="QComboBox" name="cmbPosicion">
+       <item>
+        <property name="text">
+         <string>N/A</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Portero</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Defensa</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Centrocampista</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Delantero</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item>
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Save</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>DialogParticipante</receiver>
+   <slot>accept()</slot>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>DialogParticipante</receiver>
+   <slot>reject()</slot>
+  </connection>
+ </connections>
+</ui>

@@ -26,6 +26,8 @@ class BracketWidget(QWidget):
         self.combos_semis_right = []
         self.combo_finalista_left = None
         self.combo_finalista_right = None
+        self.title_label_left = None
+        self.title_label_right = None
         self.combos_final = []
         self.bracket_state = None
         self.setup_ui()
@@ -141,8 +143,10 @@ class BracketWidget(QWidget):
         
         if side == "left":
             self.combo_finalista_left = combo
+            self.title_label_left = title_label
         else:
             self.combo_finalista_right = combo
+            self.title_label_right = title_label
         
         finalista_frame.setLayout(layout)
         return finalista_frame
@@ -234,6 +238,20 @@ class BracketWidget(QWidget):
                     combo.setCurrentIndex(idx)
             
             combo.blockSignals(False)
+    
+    def update_crown_visibility(self, ganador_equipo_id=None):
+        """Actualiza el texto del label Finalista. Añade corona solo al ganador."""
+        if self.title_label_left and self.combo_finalista_left:
+            left_team_id = self.combo_finalista_left.currentData()
+            # Añadir corona solo si este equipo es el ganador
+            is_winner = ganador_equipo_id is not None and left_team_id == ganador_equipo_id
+            self.title_label_left.setText("👑 Finalista" if is_winner else "Finalista")
+        
+        if self.title_label_right and self.combo_finalista_right:
+            right_team_id = self.combo_finalista_right.currentData()
+            # Añadir corona solo si este equipo es el ganador
+            is_winner = ganador_equipo_id is not None and right_team_id == ganador_equipo_id
+            self.title_label_right.setText("👑 Finalista" if is_winner else "Finalista")
 
 
 class PageCuadroEliminatorias(QWidget):
@@ -257,7 +275,7 @@ class PageCuadroEliminatorias(QWidget):
         layout_principal = QVBoxLayout()
         layout_principal.setContentsMargins(20, 4, 20, 12)
         layout_principal.setSpacing(8)
-        layout_principal.setAlignment(Qt.AlignmentFlag.AlignTop)
+        # Eliminado AlignTop para permitir centrado vertical
         
         self.crear_cabecera(layout_principal)
         
@@ -276,7 +294,11 @@ class PageCuadroEliminatorias(QWidget):
         
         card_layout.addWidget(self.bracket_widget, 1)
         
-        layout_principal.addWidget(content_card)
+        # Añadir stretcher superior para centrar el contenido
+        layout_principal.addStretch(1)
+        layout_principal.addWidget(content_card, 0)
+        # Añadir stretcher inferior para centrar el contenido
+        layout_principal.addStretch(1)
         
         self.setLayout(layout_principal)
         
@@ -631,12 +653,26 @@ class PageCuadroEliminatorias(QWidget):
             
             print(f"[PageBracket set_cuadro] Procesando {ronda}: {len(partidos)} partidos")
             
-            # Separar partidos por lado (slot impar=izquierda, par=derecha)
-            partidos_left = [p for p in partidos if p.get('slot', 0) % 2 == 1]
-            partidos_right = [p for p in partidos if p.get('slot', 0) % 2 == 0]
+            # Separar partidos por lado según la ronda
+            # Para Octavos: slots impares (1,3,5,7) → izquierda, pares (2,4,6,8) → derecha
+            # Para Cuartos: slots 1,2 → izquierda, slots 3,4 → derecha
+            # Para Semifinal: slot 1 → izquierda, slot 2 → derecha
+            if ronda == 'Octavos':
+                partidos_left = [p for p in partidos if p.get('slot', 0) % 2 == 1]
+                partidos_right = [p for p in partidos if p.get('slot', 0) % 2 == 0]
+            elif ronda == 'Cuartos':
+                partidos_left = [p for p in partidos if p.get('slot', 0) in [1, 2]]
+                partidos_right = [p for p in partidos if p.get('slot', 0) in [3, 4]]
+            elif ronda == 'Semifinal':
+                partidos_left = [p for p in partidos if p.get('slot', 0) == 1]
+                partidos_right = [p for p in partidos if p.get('slot', 0) == 2]
+            else:
+                # Fallback: lógica anterior
+                partidos_left = [p for p in partidos if p.get('slot', 0) % 2 == 1]
+                partidos_right = [p for p in partidos if p.get('slot', 0) % 2 == 0]
             
-            print(f"[PageBracket set_cuadro]   - Izquierda: {len(partidos_left)} partidos (slots impares)")
-            print(f"[PageBracket set_cuadro]   - Derecha: {len(partidos_right)} partidos (slots pares)")
+            print(f"[PageBracket set_cuadro]   - Izquierda: {len(partidos_left)} partidos {[p.get('slot') for p in partidos_left]}")
+            print(f"[PageBracket set_cuadro]   - Derecha: {len(partidos_right)} partidos {[p.get('slot') for p in partidos_right]}")
             
             # Rellenar lado izquierdo
             combos_left = combos_map[ronda]['left']
@@ -645,15 +681,34 @@ class PageCuadroEliminatorias(QWidget):
                     # Combo A (local)
                     combo_a = combos_left[i * 2]
                     local_id = partido.get('equipo_local_id')
+                    
+                    # Hacer visible el match_card padre si hay equipos
+                    if local_id or partido.get('equipo_visitante_id'):
+                        match_card = combo_a.parent()
+                        if match_card:
+                            match_card.show()
+                    
                     if local_id:
                         idx = combo_a.findData(local_id)
                         if idx >= 0:
                             combo_a.blockSignals(True)
                             combo_a.setCurrentIndex(idx)
                             combo_a.blockSignals(False)
-                            # Marcar ganador
+                            # Marcar ganador con estilo que funciona en modo claro y oscuro
                             if partido.get('ganador_equipo_id') == local_id:
-                                combo_a.setStyleSheet("background: #d4edda; font-weight: bold;")
+                                combo_a.setStyleSheet("""
+                                    QComboBox {
+                                        background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+                                            stop:0 rgba(40, 167, 69, 0.3),
+                                            stop:1 rgba(40, 167, 69, 0.15));
+                                        border: 2px solid #28a745;
+                                        font-weight: bold;
+                                        color: #28a745;
+                                    }
+                                    QComboBox:disabled {
+                                        color: #1e7e34;
+                                    }
+                                """)
                     
                     # Combo B (visitante)
                     if i * 2 + 1 < len(combos_left):
@@ -665,26 +720,56 @@ class PageCuadroEliminatorias(QWidget):
                                 combo_b.blockSignals(True)
                                 combo_b.setCurrentIndex(idx)
                                 combo_b.blockSignals(False)
-                                # Marcar ganador
+                                # Marcar ganador con estilo que funciona en modo claro y oscuro
                                 if partido.get('ganador_equipo_id') == visitante_id:
-                                    combo_b.setStyleSheet("background: #d4edda; font-weight: bold;")
-            
-            # Rellenar lado derecho
+                                    combo_b.setStyleSheet("""
+                                        QComboBox {
+                                            background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+                                                stop:0 rgba(40, 167, 69, 0.3),
+                                                stop:1 rgba(40, 167, 69, 0.15));
+                                        border: 2px solid #28a745;
+                                        font-weight: bold;
+                                        color: #28a745;
+                                    }
+                                    QComboBox:disabled {
+                                        color: #1e7e34;
+                                    }
+                                """)
+                        # Rellenar lado derecho
             combos_right = combos_map[ronda]['right']
             for i, partido in enumerate(partidos_right):
                 if i * 2 < len(combos_right):
                     # Combo A (local)
                     combo_a = combos_right[i * 2]
                     local_id = partido.get('equipo_local_id')
+                    
+                    # Hacer visible el match_card padre si hay equipos
+                    if local_id or partido.get('equipo_visitante_id'):
+                        match_card = combo_a.parent()
+                        if match_card:
+                            match_card.show()
+                    
                     if local_id:
                         idx = combo_a.findData(local_id)
                         if idx >= 0:
                             combo_a.blockSignals(True)
                             combo_a.setCurrentIndex(idx)
                             combo_a.blockSignals(False)
-                            # Marcar ganador
+                            # Marcar ganador con estilo que funciona en modo claro y oscuro
                             if partido.get('ganador_equipo_id') == local_id:
-                                combo_a.setStyleSheet("background: #d4edda; font-weight: bold;")
+                                combo_a.setStyleSheet("""
+                                    QComboBox {
+                                        background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+                                            stop:0 rgba(40, 167, 69, 0.3),
+                                            stop:1 rgba(40, 167, 69, 0.15));
+                                        border: 2px solid #28a745;
+                                        font-weight: bold;
+                                        color: #28a745;
+                                    }
+                                    QComboBox:disabled {
+                                        color: #1e7e34;
+                                    }
+                                """)
                     
                     # Combo B (visitante)
                     if i * 2 + 1 < len(combos_right):
@@ -696,9 +781,21 @@ class PageCuadroEliminatorias(QWidget):
                                 combo_b.blockSignals(True)
                                 combo_b.setCurrentIndex(idx)
                                 combo_b.blockSignals(False)
-                                # Marcar ganador
+                                # Marcar ganador con estilo que funciona en modo claro y oscuro
                                 if partido.get('ganador_equipo_id') == visitante_id:
-                                    combo_b.setStyleSheet("background: #d4edda; font-weight: bold;")
+                                    combo_b.setStyleSheet("""
+                                        QComboBox {
+                                            background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+                                                stop:0 rgba(40, 167, 69, 0.3),
+                                                stop:1 rgba(40, 167, 69, 0.15));
+                                            border: 2px solid #28a745;
+                                            font-weight: bold;
+                                            color: #28a745;
+                                        }
+                                        QComboBox:disabled {
+                                            color: #1e7e34;
+                                        }
+                                    """)
         
         # Rellenar finalistas si existe la Final
         if 'Final' in datos and len(datos['Final']) > 0:
@@ -713,9 +810,21 @@ class PageCuadroEliminatorias(QWidget):
                         self.bracket_widget.combo_finalista_left.blockSignals(True)
                         self.bracket_widget.combo_finalista_left.setCurrentIndex(idx)
                         self.bracket_widget.combo_finalista_left.blockSignals(False)
-                        # Marcar ganador
+                        # Marcar campeón con estilo dorado que funciona en ambos modos
                         if final.get('ganador_equipo_id') == local_id:
-                            self.bracket_widget.combo_finalista_left.setStyleSheet("background: gold; font-weight: bold;")
+                            self.bracket_widget.combo_finalista_left.setStyleSheet("""
+                                QComboBox {
+                                    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+                                        stop:0 rgba(255, 215, 0, 0.4),
+                                        stop:1 rgba(255, 215, 0, 0.2));
+                                    border: 2px solid #FFD700;
+                                    font-weight: bold;
+                                    color: #B8860B;
+                                }
+                                QComboBox:disabled {
+                                    color: #8B6914;
+                                }
+                            """)
             
             # Finalista derecho (visitante)
             if self.bracket_widget.combo_finalista_right:
@@ -726,9 +835,29 @@ class PageCuadroEliminatorias(QWidget):
                         self.bracket_widget.combo_finalista_right.blockSignals(True)
                         self.bracket_widget.combo_finalista_right.setCurrentIndex(idx)
                         self.bracket_widget.combo_finalista_right.blockSignals(False)
-                        # Marcar ganador
+                        # Marcar campeón con estilo dorado que funciona en ambos modos
                         if final.get('ganador_equipo_id') == visitante_id:
-                            self.bracket_widget.combo_finalista_right.setStyleSheet("background: gold; font-weight: bold;")
+                            self.bracket_widget.combo_finalista_right.setStyleSheet("""
+                                QComboBox {
+                                    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+                                        stop:0 rgba(255, 215, 0, 0.4),
+                                        stop:1 rgba(255, 215, 0, 0.2));
+                                    border: 2px solid #FFD700;
+                                    font-weight: bold;
+                                    color: #B8860B;
+                                }
+                                QComboBox:disabled {
+                                    color: #8B6914;
+                                }
+                            """)
+        
+        # Actualizar visibilidad de las coronas con el ID del ganador
+        ganador_id = None
+        if 'Final' in datos and len(datos['Final']) > 0:
+            ganador_id = datos['Final'][0].get('ganador_equipo_id')
+        
+        if self.bracket_widget:
+            self.bracket_widget.update_crown_visibility(ganador_id)
     
     def actualizar_cuadro_visual(self, datos: dict):
         """Alias para set_cuadro para compatibilidad."""
@@ -741,6 +870,9 @@ class PageCuadroEliminatorias(QWidget):
             for combo in all_combos:
                 combo.setCurrentIndex(0)
                 combo.setStyleSheet("")  # Resetear estilos (quitar marcas de ganador)
+            
+            # Ocultar coronas al limpiar (sin ganador)
+            self.bracket_widget.update_crown_visibility(ganador_equipo_id=None)
     
     def set_modo(self, modo: str):
         self.modo_actual = modo

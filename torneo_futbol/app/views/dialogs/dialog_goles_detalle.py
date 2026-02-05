@@ -61,9 +61,9 @@ class DialogGolesDetalle(QDialog):
         header = self.tabla_goles.horizontalHeader()
         header.setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents)
         header.setSectionResizeMode(1, QHeaderView.ResizeMode.ResizeToContents)
-        header.setSectionResizeMode(2, QHeaderView.ResizeMode.Stretch)
+        header.setSectionResizeMode(2, QHeaderView.ResizeMode.Stretch)  # Jugador ocupa el espacio restante
         header.setSectionResizeMode(3, QHeaderView.ResizeMode.Fixed)
-        header.resizeSection(3, 60)  # Aumentado a 60px para botón de eliminar
+        header.resizeSection(3, 70)  # Ancho fijo para botón de eliminar (aumentado para evitar corte)
         header.setStretchLastSection(False)
         
         layout.addWidget(self.tabla_goles)
@@ -157,26 +157,26 @@ class DialogGolesDetalle(QDialog):
             jugador_item = QTableWidgetItem(gol.get('jugador_nombre', 'Desconocido'))
             self.tabla_goles.setItem(i, 2, jugador_item)
             
-            # Botón eliminar con icono de basura
-            btn_eliminar = QPushButton("🗑️")  # Icono de papelera
+            # Botón eliminar con icono de basura - diseño moderno
+            btn_eliminar = QPushButton("🗑")  # Icono de papelera
             btn_eliminar.setObjectName("btnEliminarGol")
-            btn_eliminar.setFixedSize(50, 30)  # Ancho aumentado para mejor visibilidad
+            btn_eliminar.setFixedSize(40, 28)
             btn_eliminar.setToolTip("Eliminar este gol")
             btn_eliminar.setStyleSheet("""
-                QPushButton {
-                    background-color: #dc3545;
-                    color: white;
-                    border: none;
-                    border-radius: 4px;
-                    font-size: 18px;
-                    font-weight: bold;
-                    padding: 2px;
+                QPushButton#btnEliminarGol {
+                    background-color: transparent;
+                    color: #dc3545;
+                    border: 1px solid rgba(220, 53, 69, 0.3);
+                    border-radius: 6px;
+                    font-size: 16px;
+                    padding: 4px;
                 }
-                QPushButton:hover {
-                    background-color: #c82333;
+                QPushButton#btnEliminarGol:hover {
+                    background-color: rgba(220, 53, 69, 0.1);
+                    border: 1px solid rgba(220, 53, 69, 0.5);
                 }
-                QPushButton:pressed {
-                    background-color: #bd2130;
+                QPushButton#btnEliminarGol:pressed {
+                    background-color: rgba(220, 53, 69, 0.2);
                 }
             """)
             btn_eliminar.clicked.connect(lambda checked, row=i: self.eliminar_gol(row))

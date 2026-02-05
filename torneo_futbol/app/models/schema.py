@@ -44,14 +44,16 @@ def create_schema(conn: sqlite3.Connection) -> None:
     """)
     
     # Tabla de partidos
+    # NOTA: equipo_local_id y equipo_visitante_id permiten NULL para soportar 
+    # partidos con equipos por definir (cuando solo un ganador ha avanzado)
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS partidos (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             eliminatoria TEXT NOT NULL,
             slot INTEGER NOT NULL,
             fecha_hora TEXT,
-            equipo_local_id INTEGER NOT NULL,
-            equipo_visitante_id INTEGER NOT NULL,
+            equipo_local_id INTEGER,
+            equipo_visitante_id INTEGER,
             arbitro_id INTEGER,
             goles_local INTEGER,
             goles_visitante INTEGER,

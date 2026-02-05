@@ -143,8 +143,12 @@ class TournamentService:
                 es_local
             )
             print(f"[DEBUG avanzar_ronda] Equipo {ganador_id} actualizado en partido {partido_siguiente['id']}")
+            # Emitir evento de actualización de bracket
+            event_bus = get_event_bus()
+            event_bus.emit_bracket_updated()
+            print(f"[DEBUG avanzar_ronda] Evento bracket_updated emitido")
         else:
-            # Verificar si el partido hermano ya está jugado
+            # El partido de la siguiente ronda NO existe
             print(f"[DEBUG avanzar_ronda] Partido siguiente NO existe, buscando hermano...")
             partido_hermano = TournamentService._obtener_partido_hermano(
                 eliminatoria_actual,
@@ -156,27 +160,34 @@ class TournamentService:
             else:
                 print(f"[DEBUG avanzar_ronda] No se encontró partido hermano")
             
-            if partido_hermano and partido_hermano.get('ganador_equipo_id'):
-                # El partido hermano ya tiene ganador, crear el partido siguiente
-                ganador_hermano_id = partido_hermano['ganador_equipo_id']
-                
-                if es_local:
-                    local_id = ganador_id
-                    visitante_id = ganador_hermano_id
-                else:
-                    local_id = ganador_hermano_id
-                    visitante_id = ganador_id
-                
-                print(f"[DEBUG avanzar_ronda] Creando partido en {siguiente_ronda}, slot {siguiente_slot}: {local_id} vs {visitante_id}")
-                nuevo_partido_id = MatchModel.crear_partido(
-                    eliminatoria=siguiente_ronda,
-                    slot=siguiente_slot,
-                    local_id=local_id,
-                    visitante_id=visitante_id
-                )
-                print(f"[DEBUG avanzar_ronda] Partido creado con ID: {nuevo_partido_id}")
+            # Determinar IDs de local y visitante
+            ganador_hermano_id = partido_hermano.get('ganador_equipo_id') if partido_hermano else None
+            
+            if es_local:
+                local_id = ganador_id
+                visitante_id = ganador_hermano_id  # Puede ser None
             else:
-                print(f"[DEBUG avanzar_ronda] Hermano aún no jugado, esperando...")
+                local_id = ganador_hermano_id  # Puede ser None
+                visitante_id = ganador_id
+            
+            # CAMBIO: Crear el partido SIEMPRE, aunque el hermano no tenga ganador
+            # Esto permite que los ganadores aparezcan en el calendario inmediatamente
+            print(f"[DEBUG avanzar_ronda] Creando partido en {siguiente_ronda}, slot {siguiente_slot}")
+            print(f"[DEBUG avanzar_ronda]   Local: {local_id}, Visitante: {visitante_id}")
+            
+            nuevo_partido_id = MatchModel.crear_partido(
+                eliminatoria=siguiente_ronda,
+                slot=siguiente_slot,
+                local_id=local_id,
+                visitante_id=visitante_id
+            )
+            print(f"[DEBUG avanzar_ronda] Partido creado con ID: {nuevo_partido_id}")
+            
+            # Emitir eventos de actualización
+            event_bus = get_event_bus()
+            event_bus.emit_match_created(nuevo_partido_id)
+            event_bus.emit_bracket_updated()
+            print(f"[DEBUG avanzar_ronda] Eventos match_created y bracket_updated emitidos")
 
     @staticmethod
     def _obtener_siguiente_ronda(ronda_actual: str) -> Optional[str]:
@@ -216,6 +227,12 @@ class TournamentService:
         """
         Calcula el slot del partido siguiente y si el ganador va como local.
         
+        En un bracket correcto:
+        - Octavos 1 vs Octavos 3 → Cuartos 1
+        - Octavos 5 vs Octavos 7 → Cuartos 2
+        - Octavos 2 vs Octavos 4 → Cuartos 3
+        - Octavos 6 vs Octavos 8 → Cuartos 4
+        
         Args:
             eliminatoria: Ronda actual
             slot: Slot actual (1-based)
@@ -223,22 +240,55 @@ class TournamentService:
         Returns:
             Tupla (siguiente_slot, es_local)
         """
-        # Octavos: slots 1-8 -> Cuartos: slots 1-4
-        # (1,2)->1; (3,4)->2; (5,6)->3; (7,8)->4
-        # Cuartos: slots 1-4 -> Semifinal: slots 1-2
-        # (1,2)->1; (3,4)->2
-        # Semifinal: slots 1-2 -> Final: slot 1
-        # (1,2)->1
+        if eliminatoria == FASE_OCTAVOS:
+            # Mapeo específico para octavos -> cuartos
+            # Slots impares (1,3,5,7) van como locales
+            # Slots pares (2,4,6,8) van como visitantes
+            mapeo = {
+                1: (1, True),   # Octavos 1 → Cuartos 1 (local)
+                3: (1, False),  # Octavos 3 → Cuartos 1 (visitante)
+                5: (2, True),   # Octavos 5 → Cuartos 2 (local)
+                7: (2, False),  # Octavos 7 → Cuartos 2 (visitante)
+                2: (3, True),   # Octavos 2 → Cuartos 3 (local)
+                4: (3, False),  # Octavos 4 → Cuartos 3 (visitante)
+                6: (4, True),   # Octavos 6 → Cuartos 4 (local)
+                8: (4, False),  # Octavos 8 → Cuartos 4 (visitante)
+            }
+            return mapeo.get(slot, (1, True))
         
-        siguiente_slot = ((slot - 1) // 2) + 1
-        es_local = (slot % 2 == 1)  # Slots impares van como local
+        elif eliminatoria == FASE_CUARTOS:
+            # Cuartos 1 vs Cuartos 2 → Semifinal 1
+            # Cuartos 3 vs Cuartos 4 → Semifinal 2
+            if slot in [1, 2]:
+                siguiente_slot = 1
+                es_local = (slot == 1)
+            else:  # slots 3, 4
+                siguiente_slot = 2
+                es_local = (slot == 3)
+            return siguiente_slot, es_local
         
-        return siguiente_slot, es_local
+        elif eliminatoria == FASE_SEMIFINAL:
+            # Semifinal 1 vs Semifinal 2 → Final 1
+            siguiente_slot = 1
+            es_local = (slot == 1)
+            return siguiente_slot, es_local
+        
+        else:
+            # Fallback: lógica anterior para otros casos
+            siguiente_slot = ((slot - 1) // 2) + 1
+            es_local = (slot % 2 == 1)
+            return siguiente_slot, es_local
 
     @staticmethod
     def _obtener_partido_hermano(eliminatoria: str, slot: int) -> Optional[dict]:
         """
         Obtiene el partido hermano (el otro partido que clasifica al mismo partido siguiente).
+        
+        En un bracket correcto:
+        - Octavos 1 ↔ Octavos 3 (ambos → Cuartos 1)
+        - Octavos 5 ↔ Octavos 7 (ambos → Cuartos 2)
+        - Octavos 2 ↔ Octavos 4 (ambos → Cuartos 3)
+        - Octavos 6 ↔ Octavos 8 (ambos → Cuartos 4)
         
         Args:
             eliminatoria: Ronda actual
@@ -247,13 +297,35 @@ class TournamentService:
         Returns:
             Diccionario con los datos del partido hermano o None
         """
-        # Determinar el slot hermano
-        if slot % 2 == 1:
-            # Slot impar, el hermano es el siguiente
-            slot_hermano = slot + 1
+        # Determinar el slot hermano según el bracket correcto
+        if eliminatoria == FASE_OCTAVOS:
+            mapeo_hermanos = {
+                1: 3, 3: 1,  # Cuartos 1
+                5: 7, 7: 5,  # Cuartos 2
+                2: 4, 4: 2,  # Cuartos 3
+                6: 8, 8: 6,  # Cuartos 4
+            }
+            slot_hermano = mapeo_hermanos.get(slot)
+        elif eliminatoria == FASE_CUARTOS:
+            mapeo_hermanos = {
+                1: 2, 2: 1,  # Semifinal 1
+                3: 4, 4: 3,  # Semifinal 2
+            }
+            slot_hermano = mapeo_hermanos.get(slot)
+        elif eliminatoria == FASE_SEMIFINAL:
+            mapeo_hermanos = {
+                1: 2, 2: 1,  # Final
+            }
+            slot_hermano = mapeo_hermanos.get(slot)
         else:
-            # Slot par, el hermano es el anterior
-            slot_hermano = slot - 1
+            # Fallback: lógica secuencial anterior
+            if slot % 2 == 1:
+                slot_hermano = slot + 1
+            else:
+                slot_hermano = slot - 1
+        
+        if not slot_hermano:
+            return None
         
         # Obtener todos los partidos de la ronda
         partidos = MatchModel.listar_partidos(eliminatoria=eliminatoria)

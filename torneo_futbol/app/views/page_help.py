@@ -61,11 +61,14 @@ class PageHelp(QWidget):
         layout_principal.addWidget(content_card)
     
     def cargar_readme(self):
-        """Carga el contenido del archivo README.md y lo renderiza con formato."""
+        """Carga el contenido de la Guía de Usuario y lo renderiza con formato."""
         # Intentar cargar desde diferentes ubicaciones
         posibles_rutas = [
-            Path(__file__).parent.parent.parent / "README.md",  # Raíz del proyecto
-            Path(__file__).parent.parent / "resources" / "README.md",  # Carpeta resources
+            Path(__file__).parent.parent.parent.parent / "GUIA_USUARIO.md",  # Raíz del workspace
+            Path(__file__).parent.parent.parent / "GUIA_USUARIO.md",  # Raíz del proyecto torneo_futbol
+            Path(__file__).parent.parent / "resources" / "GUIA_USUARIO.md",  # Carpeta resources
+            Path(__file__).parent.parent.parent.parent / "README.md",  # Fallback al README en workspace
+            Path(__file__).parent.parent.parent / "README.md",  # Fallback al README en proyecto
         ]
         
         contenido = None

@@ -145,8 +145,88 @@ class ControladorCuadroEliminatorias:
         for ronda in cuadro_data:
             cuadro_data[ronda].sort(key=lambda p: p.get("slot", 0))
         
+        # MEJORA: Crear partidos "virtuales" para mostrar ganadores parciales
+        # Si un partido de octavos tiene ganador, mostrarlo en cuartos aunque el partido no exista
+        cuadro_data = self._agregar_ganadores_parciales(cuadro_data)
+        
         # Enviar a la vista
         self.vista.set_cuadro(cuadro_data)
+    
+    def _agregar_ganadores_parciales(self, cuadro_data: dict) -> dict:
+        """
+        Agrega partidos "virtuales" para mostrar ganadores parciales en rondas siguientes.
+        Esto permite visualizar ganadores de octavos en cuartos aunque el partido no exista.
+        """
+        from app.constants import FASE_OCTAVOS, FASE_CUARTOS, FASE_SEMIFINAL, FASE_FINAL
+        from app.models.team_model import TeamModel
+        
+        # Procesar octavos -> cuartos
+        octavos = cuadro_data.get("Octavos", [])
+        cuartos_existentes = cuadro_data.get("Cuartos", [])
+        
+        # Crear diccionario de slots de cuartos existentes
+        slots_cuartos_existentes = {p.get('slot'): p for p in cuartos_existentes}
+        
+        # Emparejamiento correcto para un bracket eliminatorio:
+        # Cuartos 1: Octavos 1 vs Octavos 3 (mitad superior izquierda)
+        # Cuartos 2: Octavos 5 vs Octavos 7 (mitad inferior izquierda)
+        # Cuartos 3: Octavos 2 vs Octavos 4 (mitad superior derecha)
+        # Cuartos 4: Octavos 6 vs Octavos 8 (mitad inferior derecha)
+        
+        emparejamientos = [
+            (1, 1, 3),  # (slot_cuartos, slot_octavos_1, slot_octavos_2)
+            (2, 5, 7),
+            (3, 2, 4),
+            (4, 6, 8)
+        ]
+        
+        for slot_cuartos, slot_octavos_1, slot_octavos_2 in emparejamientos:
+            
+            # Si ya existe el partido de cuartos, no crear virtual
+            if slot_cuartos in slots_cuartos_existentes:
+                continue
+            
+            # Buscar los partidos hermanos de octavos
+            partido_1 = next((p for p in octavos if p.get('slot') == slot_octavos_1), None)
+            partido_2 = next((p for p in octavos if p.get('slot') == slot_octavos_2), None)
+            
+            # Si al menos uno tiene ganador, crear partido virtual
+            ganador_1_id = partido_1.get('ganador_equipo_id') if partido_1 else None
+            ganador_2_id = partido_2.get('ganador_equipo_id') if partido_2 else None
+            
+            if ganador_1_id or ganador_2_id:
+                # Crear partido virtual de cuartos
+                local_nombre = self._obtener_nombre_equipo(ganador_1_id) if ganador_1_id else None
+                visitante_nombre = self._obtener_nombre_equipo(ganador_2_id) if ganador_2_id else None
+                
+                partido_virtual = {
+                    'id': None,  # Virtual
+                    'eliminatoria': FASE_CUARTOS,
+                    'slot': slot_cuartos,
+                    'equipo_local_id': ganador_1_id,  # Slot impar va como local
+                    'equipo_visitante_id': ganador_2_id,  # Slot par va como visitante
+                    'local_nombre': local_nombre,
+                    'visitante_nombre': visitante_nombre,
+                    'estado': 'Pendiente',
+                    'ganador_equipo_id': None,
+                    '_virtual': True  # Marca para identificar partidos virtuales
+                }
+                cuadro_data["Cuartos"].append(partido_virtual)
+        
+        # Ordenar cuartos nuevamente
+        cuadro_data["Cuartos"].sort(key=lambda p: p.get("slot", 0))
+        
+        # TODO: Repetir lógica para cuartos -> semifinal y semifinal -> final si es necesario
+        
+        return cuadro_data
+    
+    def _obtener_nombre_equipo(self, equipo_id: int) -> str:
+        """Obtiene el nombre de un equipo por su ID."""
+        if not equipo_id:
+            return None
+        equipos = TeamModel.listar_equipos()
+        equipo = next((e for e in equipos if e['id'] == equipo_id), None)
+        return equipo['nombre'] if equipo else None
     
     def _on_randomizar(self):
         """Maneja la acción de randomizar emparejamientos con persistencia en BD."""

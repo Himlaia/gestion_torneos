@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>PageParticipants</class>
+ <widget class="QWidget" name="PageParticipants">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1000</width>
+    <height>700</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Gestión de Participantes</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QLabel" name="labelTitle">
+     <property name="text">
+      <string>Gestión de Participantes</string>
+     </property>
+     <property name="styleSheet">
+      <string>font-size: 24px; font-weight: bold;</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QPushButton" name="btnNuevoParticipante">
+       <property name="text">
+        <string>Nuevo Participante</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="txtBuscar">
+       <property name="placeholderText">
+        <string>Buscar por nombre...</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="cmbRol">
+       <item>
+        <property name="text">
+         <string>Todos</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Jugadores</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Árbitros</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="cmbEquipo">
+       <item>
+        <property name="text">
+         <string>Todos los equipos</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QTableWidget" name="tableParticipantes">
+     <property name="alternatingRowColors">
+      <bool>true</bool>
+     </property>
+     <property name="selectionBehavior">
+      <enum>QAbstractItemView::SelectRows</enum>
+     </property>
+     <column>
+      <property name="text">
+       <string>ID</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Nombre</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Apellidos</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Curso</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Rol</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Posición</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Goles</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>TA</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>TR</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Acciones</string>
+      </property>
+     </column>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

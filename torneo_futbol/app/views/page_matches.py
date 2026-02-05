@@ -427,12 +427,12 @@ class PageCalendarioPartidos(QWidget):
         """Crea el tab de convocatoria (diseño compacto con lista única por equipo)."""
         tab_convocatoria = QWidget()
         layout_convocatoria_principal = QVBoxLayout()
-        layout_convocatoria_principal.setContentsMargins(18, 22, 18, 16)
-        layout_convocatoria_principal.setSpacing(10)
+        layout_convocatoria_principal.setContentsMargins(12, 12, 12, 10)  # Márgenes más compactos
+        layout_convocatoria_principal.setSpacing(8)
         
         # Label informativo
         self.label_info_convocatoria = QLabel("Guarda el partido para gestionar convocatoria.")
-        self.label_info_convocatoria.setStyleSheet("font-size: 12px; color: #666; padding: 10px;")
+        self.label_info_convocatoria.setStyleSheet("font-size: 11px; color: #666; padding: 6px;")
         self.label_info_convocatoria.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.label_info_convocatoria.setWordWrap(True)
         layout_convocatoria_principal.addWidget(self.label_info_convocatoria)
@@ -455,7 +455,8 @@ class PageCalendarioPartidos(QWidget):
         """Crea un grupo de convocatoria compacto con una sola lista y checkboxes."""
         grupo = QGroupBox(titulo)
         layout_grupo = QVBoxLayout()
-        layout_grupo.setSpacing(10)
+        layout_grupo.setSpacing(8)
+        layout_grupo.setContentsMargins(8, 10, 8, 8)  # Reducir márgenes para modo compacto
         
         # Label de equipo
         label_equipo = QLabel("Equipo: -")
@@ -467,18 +468,18 @@ class PageCalendarioPartidos(QWidget):
         label_contador.setStyleSheet("font-size: 11px; color: #666;")
         layout_grupo.addWidget(label_contador)
         
+        # Label de ayuda (movido arriba de la lista para evitar solapamiento)
+        label_ayuda = QLabel("✓ Marcar | Doble clic alterna")
+        label_ayuda.setStyleSheet("font-size: 9px; color: #888; font-style: italic;")
+        label_ayuda.setAlignment(Qt.AlignmentFlag.AlignLeft)
+        layout_grupo.addWidget(label_ayuda)
+        
         # Lista única con checkboxes
         lista_jugadores = QListWidget()
-        lista_jugadores.setMinimumHeight(200)
+        lista_jugadores.setMinimumHeight(150)  # Reducido de 200 a 150
         lista_jugadores.setMaximumHeight(400)
         lista_jugadores.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         layout_grupo.addWidget(lista_jugadores)
-        
-        # Label de ayuda
-        label_ayuda = QLabel("✓ Marcar para convocar | Doble click para alternar")
-        label_ayuda.setStyleSheet("font-size: 10px; color: #888; font-style: italic;")
-        label_ayuda.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        layout_grupo.addWidget(label_ayuda)
         
         grupo.setLayout(layout_grupo)
         layout_padre.addWidget(grupo)
@@ -601,6 +602,8 @@ class PageCalendarioPartidos(QWidget):
         self.goles_local.setRange(0, 99)
         self.goles_local.setValue(0)
         self.goles_local.setMinimumWidth(80)
+        self.goles_local.setButtonSymbols(QSpinBox.ButtonSymbols.UpDownArrows)
+        self.goles_local.setWrapping(False)
         layout_goles_local.addWidget(self.goles_local)
         layout_marcador.addLayout(layout_goles_local)
         
@@ -614,6 +617,8 @@ class PageCalendarioPartidos(QWidget):
         self.goles_visitante.setRange(0, 99)
         self.goles_visitante.setValue(0)
         self.goles_visitante.setMinimumWidth(80)
+        self.goles_visitante.setButtonSymbols(QSpinBox.ButtonSymbols.UpDownArrows)
+        self.goles_visitante.setWrapping(False)
         layout_goles_visitante.addWidget(self.goles_visitante)
         layout_marcador.addLayout(layout_goles_visitante)
         

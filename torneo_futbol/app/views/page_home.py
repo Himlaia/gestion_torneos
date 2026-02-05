@@ -50,8 +50,8 @@ class PageInicio(QWidget):
         
         # Layout del contenido scrolleable
         content_layout = QVBoxLayout(scroll_content)
-        content_layout.setContentsMargins(40, 40, 40, 40)
-        content_layout.setSpacing(30)
+        content_layout.setContentsMargins(40, 20, 40, 40)
+        content_layout.setSpacing(10)
         
         # Título principal
         self.crear_titulo(content_layout)
@@ -69,8 +69,8 @@ class PageInicio(QWidget):
         
         content_layout.addWidget(self.panel_central)
         
-        # Espaciador inferior
-        content_layout.addStretch()
+        # Pequeño espaciador inferior (reducido)
+        content_layout.addSpacing(20)
         
         # Asignar el contenido al scroll
         scroll_area.setWidget(scroll_content)
