@@ -173,11 +173,19 @@ class ControladorCalendarioPartidos:
         filtros = self.vista.obtener_filtros_actuales()
         print(f"[DEBUG] Filtros actuales: {filtros}")
         
-        eliminatoria = filtros.get("eliminatoria")
+        eliminatoria = filtros.get("ronda")  # Corregido: era "eliminatoria"
         estado = filtros.get("estado")
         
+        # Normalizar eliminatoria a minúsculas y formato correcto
         if eliminatoria == "Todos":
             eliminatoria = None
+        elif eliminatoria:
+            eliminatoria = eliminatoria.lower()
+            # Corregir "semifinales" (plural) a "semifinal" (singular)
+            if eliminatoria == "semifinales":
+                eliminatoria = "semifinal"
+        
+        # Normalizar estado
         if estado == "Todos":
             estado = None
         elif estado == "Pendientes":

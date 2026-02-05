@@ -1027,7 +1027,7 @@ class PageCalendarioPartidos(QWidget):
     
     def obtener_filtros_actuales(self) -> dict:
         return {
-            'eliminatoria': self.filtro_ronda.currentText(),
+            'ronda': self.filtro_ronda.currentText(),
             'estado': self.filtro_estado.currentText()
         }
     
@@ -1054,9 +1054,8 @@ class PageCalendarioPartidos(QWidget):
     
     def on_partido_programado(self):
         """Refresca el calendario tras programar un partido."""
+        # Recargar con filtros actuales (esto actualizará el calendario correctamente)
         self.filtros_changed_signal.emit(self.obtener_filtros_actuales())
-        # Refresh calendar marks immediately
-        self.calendario_partidos.refresh_calendar_marks()
     
     def on_abrir_partido_desde_dialogo(self, partido_id: int):
         """Maneja la señal de abrir partido desde el diálogo."""
@@ -1093,7 +1092,8 @@ class PageCalendarioPartidos(QWidget):
     def on_goles_changed(self):
         """Maneja el cambio en los goles para habilitar/deshabilitar penaltis."""
         empate = (self.goles_local.value() == self.goles_visitante.value())
-        self.grupo_penaltis.setEnabled(empate and self.modo_actual == "editar_resultado")
+        # Habilitar penaltis solo si hay empate, sin validar modo
+        self.grupo_penaltis.setEnabled(empate)
         
         if not empate:
             self.penaltis_local.setValue(0)
@@ -1213,17 +1213,18 @@ class PageCalendarioPartidos(QWidget):
         super().showEvent(event)
         if not self._cargado_inicial:
             self._cargado_inicial = True
+            # Cargar datos iniciales respetando filtros
             self.filtros_changed_signal.emit(self.obtener_filtros_actuales())
-        # Refresh calendar marks on show
-        self.calendario_partidos.refresh_calendar_marks()
     
     def set_filas_tabla(self, partidos: list[dict]):
+        """Actualiza la lista de partidos y el calendario con los partidos filtrados."""
         self.partidos_cache = partidos
+        # Actualizar calendario SOLO con partidos filtrados
+        # No llamar a refresh_calendar_marks() porque ignora los filtros
         self.calendario_partidos.set_partidos(partidos)
-        # Also refresh marks after setting partidos
-        self.calendario_partidos.refresh_calendar_marks()
     
     def actualizar_tabla(self, partidos: list[dict]):
+        """Actualiza la tabla de partidos (alias de set_filas_tabla)."""
         self.set_filas_tabla(partidos)
     
     def cargar_arbitros_en_combo(self, arbitros: list[str]):
@@ -1856,8 +1857,8 @@ class PageCalendarioPartidos(QWidget):
             # Resultado deshabilitado
             self.goles_local.setEnabled(False)
             self.goles_visitante.setEnabled(False)
-            self.penaltis_local.setEnabled(False)
-            self.penaltis_visitante.setEnabled(False)
+            # Penaltis: controlados por grupo_penaltis, no individualmente
+            self.grupo_penaltis.setEnabled(False)
             self.guardar_resultado.setEnabled(False)
             self.guardar_resultado.setVisible(False)
             self.cancelar_cambios.setEnabled(False)
@@ -1884,8 +1885,8 @@ class PageCalendarioPartidos(QWidget):
             # Resultado deshabilitado (editar datos, no resultado)
             self.goles_local.setEnabled(False)
             self.goles_visitante.setEnabled(False)
-            self.penaltis_local.setEnabled(False)
-            self.penaltis_visitante.setEnabled(False)
+            # Penaltis: controlados por grupo_penaltis, no individualmente
+            self.grupo_penaltis.setEnabled(False)
             self.guardar_resultado.setEnabled(False)
             self.guardar_resultado.setVisible(False)
             self.cancelar_cambios.setEnabled(False)
@@ -1912,11 +1913,9 @@ class PageCalendarioPartidos(QWidget):
             self.goles_local.setEnabled(True)
             self.goles_visitante.setEnabled(True)
             
-            # Penaltis solo si hay empate
-            empate = (self.goles_local.value() == self.goles_visitante.value())
-            self.penaltis_local.setEnabled(empate)
-            self.penaltis_visitante.setEnabled(empate)
-            self.grupo_penaltis.setEnabled(empate)
+            # Nota: NO establecer estado de penaltis aquí, on_goles_changed() ya lo maneja
+            # cuando se cargan los valores. Solo forzar actualización si es necesario.
+            self.on_goles_changed()
             
             self.guardar_resultado.setEnabled(False)  # Se habilita con puede_guardar_resultado()
             self.guardar_resultado.setVisible(True)

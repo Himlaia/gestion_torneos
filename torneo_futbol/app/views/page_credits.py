@@ -1,6 +1,7 @@
 """Página de créditos."""
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel
 from PySide6.QtCore import Qt
+from app.config import VERSION
 
 
 class PageCredits(QWidget):
@@ -22,16 +23,17 @@ class PageCredits(QWidget):
         title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         
         # Subtítulo
-        subtitle = QLabel("Aplicación de Gestión de Torneo de Fútbol v1.0.0")
+        subtitle = QLabel(f"Aplicación de Gestión de Torneo de Fútbol v{VERSION}")
         subtitle.setObjectName("subtitleLabel")
         subtitle.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        # Subtítulo
-        subtitle = QLabel("Creado por Martina Valdivia Figueroa")
-        subtitle.setObjectName("subtitleLabel")
-        subtitle.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        # Autor
+        author = QLabel("Creado por Martina Valdivia Figueroa")
+        author.setObjectName("subtitleLabel")
+        author.setAlignment(Qt.AlignmentFlag.AlignCenter)
         
         layout.addWidget(title)
         layout.addWidget(subtitle)
+        layout.addWidget(author)
         
         self.setLayout(layout)
