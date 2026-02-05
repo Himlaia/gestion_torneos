@@ -96,6 +96,9 @@ class ControladorGestionEquipos(QObject):
         """Inicia la creación de un nuevo equipo."""
         self.equipo_actual_id = None
         self.escudo_temporal = None
+        # Primero limpiar selección de tabla para evitar confusión
+        self.vista.tabla_equipos.clearSelection()
+        # Luego limpiar formulario
         self.vista.limpiar_formulario()
         self.vista.set_modo("crear")
     

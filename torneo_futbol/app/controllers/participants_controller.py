@@ -164,6 +164,12 @@ class ControladorGestionParticipantes:
             # Rellenar formulario en modo "ver"
             self.modo_actual = "ver"
             self.vista.rellenar_formulario(datos_formulario, modo="ver")
+            
+            # Si es árbitro, cargar partidos arbitrados
+            if es_arbitro:
+                from app.models.match_model import MatchModel
+                partidos_arbitrados = MatchModel.obtener_partidos_arbitrados(self.participante_actual_id)
+                self.vista.set_partidos_arbitrados(partidos_arbitrados)
     
     def _on_nuevo(self):
         """Maneja la acción de crear un nuevo participante."""

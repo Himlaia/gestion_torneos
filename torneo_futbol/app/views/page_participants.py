@@ -132,152 +132,128 @@ class PageGestionParticipantes(QWidget):
         """Crea la barra de filtros, búsqueda y botones de acción con layout responsive."""
         from PySide6.QtWidgets import QSizePolicy, QGridLayout
         
-        # Contenedor principal con GridLayout para responsividad
+        # Contenedor con GridLayout para permitir dos filas
         widget_barra = QWidget()
         self._layout_grid_barra = QGridLayout(widget_barra)
-        self._layout_grid_barra.setContentsMargins(0, 0, 0, 0)
+        self._layout_grid_barra.setContentsMargins(0, 0, 0, 10)
         self._layout_grid_barra.setSpacing(8)
-        self._layout_grid_barra.setColumnStretch(0, 3)  # Búsqueda: máxima expansión
+        
+        # Configurar proporciones de columnas
+        self._layout_grid_barra.setColumnStretch(0, 2)  # Búsqueda
         self._layout_grid_barra.setColumnStretch(1, 1)  # Rol
         self._layout_grid_barra.setColumnStretch(2, 1)  # Equipo
         self._layout_grid_barra.setColumnStretch(3, 1)  # Curso
-        self._layout_grid_barra.setColumnStretch(4, 0)  # Botones: sin expansión
+        self._layout_grid_barra.setColumnStretch(4, 0)  # Botones sin stretch
         
-        layout_grid = self._layout_grid_barra
-        
-        # === COLUMNA 0: Campo de búsqueda ===
-        widget_busqueda = QWidget()
-        layout_busqueda = QHBoxLayout(widget_busqueda)
-        layout_busqueda.setContentsMargins(0, 0, 0, 0)
-        layout_busqueda.setSpacing(6)
-        
+        # === FILA 0: Búsqueda y filtros ===
+        # Campo de búsqueda
         self.buscar_participante = QLineEdit()
         self.buscar_participante.setPlaceholderText("Buscar por nombre…")
-        self.buscar_participante.setMinimumWidth(120)
+        self.buscar_participante.setMinimumWidth(150)
         self.buscar_participante.setMaximumWidth(300)
-        self.buscar_participante.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
-        layout_busqueda.addWidget(self.buscar_participante)
+        self._layout_grid_barra.addWidget(self.buscar_participante, 0, 0)
         
-        widget_busqueda.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
-        layout_grid.addWidget(widget_busqueda, 0, 0)
-        
-        # === COLUMNA 1: Filtro Rol (Label + ComboBox agrupados) ===
+        # Filtro Rol
         widget_rol = QWidget()
         layout_rol = QHBoxLayout(widget_rol)
         layout_rol.setContentsMargins(0, 0, 0, 0)
         layout_rol.setSpacing(4)
-        
-        label_rol = QLabel("Rol:")
-        label_rol.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed)
-        layout_rol.addWidget(label_rol)
-        
+        layout_rol.addWidget(QLabel("Rol:"))
         self.filtro_rol = QComboBox()
         self.filtro_rol.addItems(["Todos", "Jugadores", "Árbitros", "Ambos"])
-        self.filtro_rol.setMinimumWidth(80)
-        self.filtro_rol.setMaximumWidth(110)
-        self.filtro_rol.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed)
+        self.filtro_rol.setMinimumWidth(90)
+        self.filtro_rol.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         layout_rol.addWidget(self.filtro_rol)
+        self._layout_grid_barra.addWidget(widget_rol, 0, 1)
         
-        widget_rol.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
-        layout_grid.addWidget(widget_rol, 0, 1)
-        
-        # === COLUMNA 2: Filtro Equipo (Label + ComboBox agrupados) ===
+        # Filtro Equipo
         widget_equipo = QWidget()
         layout_equipo = QHBoxLayout(widget_equipo)
         layout_equipo.setContentsMargins(0, 0, 0, 0)
         layout_equipo.setSpacing(4)
-        
-        label_equipo = QLabel("Equipo:")
-        label_equipo.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed)
-        layout_equipo.addWidget(label_equipo)
-        
+        layout_equipo.addWidget(QLabel("Equipo:"))
         self.filtro_equipo = QComboBox()
         self.filtro_equipo.addItem("Todos")
-        self.filtro_equipo.setMinimumWidth(90)
-        self.filtro_equipo.setMaximumWidth(150)
-        self.filtro_equipo.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed)
+        self.filtro_equipo.setMinimumWidth(100)
+        self.filtro_equipo.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         layout_equipo.addWidget(self.filtro_equipo)
+        self._layout_grid_barra.addWidget(widget_equipo, 0, 2)
         
-        widget_equipo.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
-        layout_grid.addWidget(widget_equipo, 0, 2)
-        
-        # === COLUMNA 3: Filtro Curso (Label + ComboBox agrupados) ===
+        # Filtro Curso
         widget_curso = QWidget()
         layout_curso = QHBoxLayout(widget_curso)
         layout_curso.setContentsMargins(0, 0, 0, 0)
         layout_curso.setSpacing(4)
-        
-        label_curso = QLabel("Curso:")
-        label_curso.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed)
-        layout_curso.addWidget(label_curso)
-        
+        layout_curso.addWidget(QLabel("Curso:"))
         self.filtro_curso = QComboBox()
         self.filtro_curso.addItems(["Todos", "1º ESO", "2º ESO", "3º ESO", "4º ESO"])
-        self.filtro_curso.setMinimumWidth(75)
-        self.filtro_curso.setMaximumWidth(100)
-        self.filtro_curso.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed)
+        self.filtro_curso.setMinimumWidth(80)
+        self.filtro_curso.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         layout_curso.addWidget(self.filtro_curso)
+        self._layout_grid_barra.addWidget(widget_curso, 0, 3)
         
-        widget_curso.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
-        layout_grid.addWidget(widget_curso, 0, 3)
-        
-        # === COLUMNA 4: Botones de acción ===
+        # === BOTONES (inicialmente en fila 0, columna 4) ===
         self._widget_botones = QWidget()
         layout_botones = QHBoxLayout(self._widget_botones)
-        layout_botones.setContentsMargins(8, 0, 0, 0)
+        layout_botones.setContentsMargins(0, 0, 0, 0)
         layout_botones.setSpacing(6)
         
         self.nuevo_participante = QPushButton("Nuevo")
         self.nuevo_participante.setMinimumWidth(65)
         self.nuevo_participante.setMaximumWidth(80)
         self.nuevo_participante.setToolTip("Nuevo participante")
-        self.nuevo_participante.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed)
+        layout_botones.addWidget(self.nuevo_participante)
         
         self.editar_participante = QPushButton("Editar")
         self.editar_participante.setMinimumWidth(65)
         self.editar_participante.setMaximumWidth(80)
         self.editar_participante.setToolTip("Editar participante seleccionado")
-        self.editar_participante.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed)
+        layout_botones.addWidget(self.editar_participante)
         
         self.eliminar_participante = QPushButton("Eliminar")
         self.eliminar_participante.setObjectName("dangerButton")
         self.eliminar_participante.setMinimumWidth(65)
         self.eliminar_participante.setMaximumWidth(85)
         self.eliminar_participante.setToolTip("Eliminar participante seleccionado")
-        self.eliminar_participante.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed)
-        
-        layout_botones.addWidget(self.nuevo_participante)
-        layout_botones.addWidget(self.editar_participante)
         layout_botones.addWidget(self.eliminar_participante)
         
-        self._widget_botones.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed)
-        layout_grid.addWidget(self._widget_botones, 0, 4)
+        self._widget_botones.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+        
+        # Añadir botones en fila 0, columna 4 inicialmente (modo ancho)
+        self._layout_grid_barra.addWidget(self._widget_botones, 0, 4, Qt.AlignmentFlag.AlignRight)
         
         layout_padre.addWidget(widget_barra)
     
     def resizeEvent(self, event):
-        """Maneja el cambio de tamaño de la ventana para layout responsive."""
+        """Maneja el cambio de tamaño para mover botones a segunda fila si es necesario."""
         super().resizeEvent(event)
         
-        if self._layout_grid_barra is None or self._widget_botones is None:
+        if not hasattr(self, '_layout_grid_barra') or not hasattr(self, '_widget_botones'):
             return
         
         ancho_actual = self.width()
-        necesita_modo_compacto = ancho_actual < self.UMBRAL_COMPACTO
+        # Umbral más alto para asegurar que no se solapen
+        necesita_segunda_fila = ancho_actual < 1100
         
-        # Solo reorganizar si el estado cambia
-        if necesita_modo_compacto != self._modo_compacto_activo:
-            self._modo_compacto_activo = necesita_modo_compacto
+        # Verificar posición actual de los botones
+        index = self._layout_grid_barra.indexOf(self._widget_botones)
+        if index == -1:
+            return
+        
+        try:
+            row, col, rowspan, colspan = self._layout_grid_barra.getItemPosition(index)
             
-            if necesita_modo_compacto:
-                # Modo compacto: mover botones a fila 1
+            # Si necesita estar en fila 1 pero está en fila 0, mover
+            if necesita_segunda_fila and row == 0:
                 self._layout_grid_barra.removeWidget(self._widget_botones)
-                self._layout_grid_barra.addWidget(self._widget_botones, 1, 0, 1, 4, Qt.AlignmentFlag.AlignRight)
-                self._layout_grid_barra.setRowStretch(1, 0)
-            else:
-                # Modo normal: botones en fila 0, columna 4
+                self._layout_grid_barra.addWidget(self._widget_botones, 1, 0, 1, 5, Qt.AlignmentFlag.AlignRight)
+            # Si necesita estar en fila 0 pero está en fila 1, mover
+            elif not necesita_segunda_fila and row == 1:
                 self._layout_grid_barra.removeWidget(self._widget_botones)
-                self._layout_grid_barra.addWidget(self._widget_botones, 0, 4)
+                self._layout_grid_barra.addWidget(self._widget_botones, 0, 4, Qt.AlignmentFlag.AlignRight)
+        except:
+            # Si hay algún error, no hacer nada
+            pass
     
     def crear_zona_central(self, layout_padre: QVBoxLayout):
         """Crea la zona central con splitter (tabla + detalle)."""

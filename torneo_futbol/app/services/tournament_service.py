@@ -84,6 +84,19 @@ class TournamentService:
     def resetear_cuadro() -> None:
         """Elimina todos los partidos del torneo."""
         MatchModel.borrar_todos_los_partidos()
+    
+    @staticmethod
+    def reiniciar_torneo() -> None:
+        """
+        Reinicia completamente el torneo eliminando todos los partidos, 
+        resultados, convocatorias y estadísticas.
+        """
+        # Usar el método existente que hace exactamente lo mismo
+        MatchModel.borrar_todos_los_partidos()
+        
+        # Emitir evento para actualizar vistas
+        event_bus = get_event_bus()
+        event_bus.emit_bracket_updated()
 
     @staticmethod
     def avanzar_ronda(partido: dict) -> None:

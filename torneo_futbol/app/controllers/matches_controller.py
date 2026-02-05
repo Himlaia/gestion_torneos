@@ -124,6 +124,12 @@ class ControladorCalendarioPartidos:
         except Exception as e:
             print(f"  ❌ ERROR conectando nuevo_partido_signal: {e}")
         
+        try:
+            self.vista.reiniciar_torneo_signal.connect(self._on_reiniciar_torneo)
+            print("  ✅ reiniciar_torneo_signal conectado a _on_reiniciar_torneo")
+        except Exception as e:
+            print(f"  ❌ ERROR conectando reiniciar_torneo_signal: {e}")
+        
         # Selección y filtros
         self.vista.partido_seleccionado_signal.connect(self._on_seleccionado)
         self.vista.filtros_changed_signal.connect(self._on_filtros_changed)
@@ -1071,6 +1077,64 @@ class ControladorCalendarioPartidos:
                 self.vista,
                 "Error",
                 f"Error al iniciar nuevo partido: {str(e)}"
+            )
+    
+    def _on_reiniciar_torneo(self):
+        """Maneja el reinicio completo del torneo."""
+        try:
+            print("[CONTROLLER] _on_reiniciar_torneo ejecutado")
+            
+            # Confirmación al usuario
+            respuesta = QMessageBox.question(
+                self.vista,
+                "Confirmar reinicio",
+                "¿Está seguro de que desea reiniciar el torneo?\n\n"
+                "Esto eliminará:\n"
+                "• Todos los partidos programados\n"
+                "• Todos los resultados guardados\n"
+                "• Todas las convocatorias\n"
+                "• Todas las estadísticas de partidos\n\n"
+                "Esta acción NO se puede deshacer.",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No
+            )
+            
+            if respuesta == QMessageBox.StandardButton.Yes:
+                # Llamar al servicio de torneo para reiniciar
+                TournamentService.reiniciar_torneo()
+                
+                # Notificar éxito
+                QMessageBox.information(
+                    self.vista,
+                    "Torneo reiniciado",
+                    "El torneo ha sido reiniciado correctamente.\n"
+                    "Todos los partidos y resultados han sido eliminados."
+                )
+                
+                # Recargar tabla de partidos
+                self.cargar_tabla()
+                
+                # Limpiar formulario
+                self.vista.limpiar_formulario_partido()
+                
+                # Establecer modo ver
+                self.vista.set_modo("ver")
+                
+                # Emitir evento para actualizar el cuadro
+                self.event_bus.emit_bracket_updated()
+                
+                print("[CONTROLLER] ✅ Torneo reiniciado exitosamente")
+            else:
+                print("[CONTROLLER] Reinicio cancelado por el usuario")
+                
+        except Exception as e:
+            print(f"[CONTROLLER ERROR] _on_reiniciar_torneo: {e}")
+            import traceback
+            traceback.print_exc()
+            QMessageBox.critical(
+                self.vista,
+                "Error",
+                f"Error al reiniciar el torneo: {str(e)}"
             )
     
     def _on_guardar_partido(self):

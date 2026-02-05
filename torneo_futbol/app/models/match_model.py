@@ -654,3 +654,48 @@ class MatchModel:
         conn.close()
         
         return [fila[0] for fila in filas if fila[0]]
+
+    @staticmethod
+    def obtener_partidos_arbitrados(arbitro_id: int) -> list[dict]:
+        """
+        Obtiene los partidos arbitrados por un participante.
+        
+        Args:
+            arbitro_id: ID del participante árbitro
+            
+        Returns:
+            Lista de diccionarios con información de los partidos arbitrados
+        """
+        conn = get_connection()
+        cursor = conn.cursor()
+        
+        cursor.execute("""
+            SELECT 
+                p.id,
+                p.eliminatoria,
+                p.fecha_hora,
+                el.nombre as local_nombre,
+                ev.nombre as visitante_nombre,
+                p.estado
+            FROM partidos p
+            LEFT JOIN equipos el ON p.equipo_local_id = el.id
+            LEFT JOIN equipos ev ON p.equipo_visitante_id = ev.id
+            WHERE p.arbitro_id = ?
+            ORDER BY p.fecha_hora DESC, p.eliminatoria, p.slot
+        """, (arbitro_id,))
+        
+        filas = cursor.fetchall()
+        conn.close()
+        
+        partidos = []
+        for fila in filas:
+            partidos.append({
+                "id": fila[0],
+                "ronda": fila[1].capitalize() if fila[1] else "",
+                "fecha": fila[2] if fila[2] else "Sin programar",
+                "local": fila[3] or "Por definir",
+                "visitante": fila[4] or "Por definir",
+                "estado": fila[5]
+            })
+        
+        return partidos
