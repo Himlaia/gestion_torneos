@@ -16,8 +16,9 @@ PAGE_TEAMS = 1
 PAGE_PARTICIPANTS = 2
 PAGE_MATCHES = 3
 PAGE_BRACKET = 4
-PAGE_HELP = 5
-PAGE_CREDITS = 6
+PAGE_TOOLS = 5
+PAGE_HELP = 6
+PAGE_CREDITS = 7
 
 # Nombres de páginas
 PAGE_NAMES = {
@@ -26,6 +27,7 @@ PAGE_NAMES = {
     PAGE_PARTICIPANTS: "Gestión de Participantes",
     PAGE_MATCHES: "Calendario / Partidos",
     PAGE_BRACKET: "Cuadro de Eliminatorias",
+    PAGE_TOOLS: "Herramientas",
     PAGE_HELP: "Ayuda",
     PAGE_CREDITS: "Créditos"
 }

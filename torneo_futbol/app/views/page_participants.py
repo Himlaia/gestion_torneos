@@ -5,7 +5,7 @@ from PySide6.QtWidgets import (
     QGroupBox, QHeaderView, QComboBox, QCheckBox, QDateEdit,
     QSpinBox, QTabWidget, QFrame
 )
-from PySide6.QtCore import Qt, Signal, QDate, QTimer
+from PySide6.QtCore import Qt, Signal, QDate, QTimer, QEvent
 from typing import Optional
 
 
@@ -123,10 +123,10 @@ class PageGestionParticipantes(QWidget):
     
     def crear_cabecera(self, layout_padre: QVBoxLayout):
         """Crea la cabecera con el título."""
-        titulo = QLabel("Gestión de participantes")
-        titulo.setObjectName("titleLabel")
-        titulo.setAlignment(Qt.AlignmentFlag.AlignLeft)
-        layout_padre.addWidget(titulo)
+        self.titulo = QLabel(self.tr("Gestión de participantes"))
+        self.titulo.setObjectName("titleLabel")
+        self.titulo.setAlignment(Qt.AlignmentFlag.AlignLeft)
+        layout_padre.addWidget(self.titulo)
     
     def crear_barra_filtros(self, layout_padre: QVBoxLayout):
         """Crea la barra de filtros, búsqueda y botones de acción con layout responsive."""
@@ -158,7 +158,8 @@ class PageGestionParticipantes(QWidget):
         layout_rol = QHBoxLayout(widget_rol)
         layout_rol.setContentsMargins(0, 0, 0, 0)
         layout_rol.setSpacing(4)
-        layout_rol.addWidget(QLabel("Rol:"))
+        self.label_filtro_rol = QLabel("Rol:")
+        layout_rol.addWidget(self.label_filtro_rol)
         self.filtro_rol = QComboBox()
         self.filtro_rol.addItems(["Todos", "Jugadores", "Árbitros", "Ambos"])
         self.filtro_rol.setMinimumWidth(90)
@@ -171,9 +172,10 @@ class PageGestionParticipantes(QWidget):
         layout_equipo = QHBoxLayout(widget_equipo)
         layout_equipo.setContentsMargins(0, 0, 0, 0)
         layout_equipo.setSpacing(4)
-        layout_equipo.addWidget(QLabel("Equipo:"))
+        self.label_filtro_equipo = QLabel("Equipo:")
+        layout_equipo.addWidget(self.label_filtro_equipo)
         self.filtro_equipo = QComboBox()
-        self.filtro_equipo.addItem("Todos")
+        self.filtro_equipo.addItem(self.tr("Todos"))
         self.filtro_equipo.setMinimumWidth(100)
         self.filtro_equipo.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         layout_equipo.addWidget(self.filtro_equipo)
@@ -184,7 +186,8 @@ class PageGestionParticipantes(QWidget):
         layout_curso = QHBoxLayout(widget_curso)
         layout_curso.setContentsMargins(0, 0, 0, 0)
         layout_curso.setSpacing(4)
-        layout_curso.addWidget(QLabel("Curso:"))
+        self.label_filtro_curso = QLabel("Curso:")
+        layout_curso.addWidget(self.label_filtro_curso)
         self.filtro_curso = QComboBox()
         self.filtro_curso.addItems(["Todos", "1º ESO", "2º ESO", "3º ESO", "4º ESO"])
         self.filtro_curso.setMinimumWidth(80)
@@ -371,7 +374,8 @@ class PageGestionParticipantes(QWidget):
         # Nombre completo
         layout_nombre = QVBoxLayout()
         layout_nombre.setSpacing(5)
-        layout_nombre.addWidget(QLabel("Nombre completo:"))
+        self.label_nombre_completo = QLabel("Nombre completo:")
+        layout_nombre.addWidget(self.label_nombre_completo)
         self.nombre_completo = QLineEdit()
         self.nombre_completo.setPlaceholderText("Nombre y apellidos del participante")
         layout_nombre.addWidget(self.nombre_completo)
@@ -380,7 +384,8 @@ class PageGestionParticipantes(QWidget):
         # Fecha de nacimiento
         layout_fecha = QVBoxLayout()
         layout_fecha.setSpacing(5)
-        layout_fecha.addWidget(QLabel("Fecha de nacimiento:"))
+        self.label_fecha_nacimiento = QLabel("Fecha de nacimiento:")
+        layout_fecha.addWidget(self.label_fecha_nacimiento)
         self.fecha_nacimiento = QDateEdit()
         self.fecha_nacimiento.setCalendarPopup(True)
         self.fecha_nacimiento.setDisplayFormat("dd/MM/yyyy")
@@ -391,7 +396,8 @@ class PageGestionParticipantes(QWidget):
         # Curso
         layout_curso = QVBoxLayout()
         layout_curso.setSpacing(5)
-        layout_curso.addWidget(QLabel("Curso:"))
+        self.label_curso_form = QLabel("Curso:")
+        layout_curso.addWidget(self.label_curso_form)
         self.curso = QComboBox()
         self.curso.addItems(["1º ESO", "2º ESO", "3º ESO", "4º ESO"])
         layout_curso.addWidget(self.curso)
@@ -400,7 +406,8 @@ class PageGestionParticipantes(QWidget):
         # Checkboxes de rol
         layout_rol = QVBoxLayout()
         layout_rol.setSpacing(5)
-        layout_rol.addWidget(QLabel("Roles:"))
+        self.label_roles = QLabel("Roles:")
+        layout_rol.addWidget(self.label_roles)
         layout_checkboxes = QHBoxLayout()
         layout_checkboxes.setSpacing(20)
         self.es_jugador = QCheckBox("Es jugador")
@@ -414,20 +421,22 @@ class PageGestionParticipantes(QWidget):
         # Equipo asignado (solo si es jugador)
         layout_equipo = QVBoxLayout()
         layout_equipo.setSpacing(5)
-        layout_equipo.addWidget(QLabel("Equipo asignado:"))
+        self.label_equipo_asignado = QLabel("Equipo asignado:")
+        layout_equipo.addWidget(self.label_equipo_asignado)
         self.equipo_asignado = QComboBox()
-        self.equipo_asignado.addItem("Sin equipo")
+        self.equipo_asignado.addItem(self.tr("Sin equipo"))
         layout_equipo.addWidget(self.equipo_asignado)
         layout_datos.addLayout(layout_equipo)
         
         # Posición (solo si es jugador)
         layout_posicion = QVBoxLayout()
         layout_posicion.setSpacing(5)
-        layout_posicion.addWidget(QLabel("Posición:"))
+        self.label_posicion = QLabel("Posición:")
+        layout_posicion.addWidget(self.label_posicion)
         self.posicion = QComboBox()
         self.posicion.addItems([
-            "Sin definir", "Portero", "Defensa",
-            "Centrocampista", "Delantero"
+            self.tr("Sin definir"), self.tr("Portero"), self.tr("Defensa"),
+            self.tr("Centrocampista"), self.tr("Delantero")
         ])
         layout_posicion.addWidget(self.posicion)
         layout_datos.addLayout(layout_posicion)
@@ -445,7 +454,8 @@ class PageGestionParticipantes(QWidget):
         # Goles
         layout_goles = QVBoxLayout()
         layout_goles.setSpacing(5)
-        layout_goles.addWidget(QLabel("Goles:"))
+        self.label_goles = QLabel("Goles:")
+        layout_goles.addWidget(self.label_goles)
         self.goles = QSpinBox()
         self.goles.setRange(0, 99)
         self.goles.setValue(0)
@@ -455,7 +465,8 @@ class PageGestionParticipantes(QWidget):
         # Tarjetas amarillas
         layout_amarillas = QVBoxLayout()
         layout_amarillas.setSpacing(5)
-        layout_amarillas.addWidget(QLabel("Tarjetas amarillas:"))
+        self.label_tarjetas_amarillas = QLabel("Tarjetas amarillas:")
+        layout_amarillas.addWidget(self.label_tarjetas_amarillas)
         self.tarjetas_amarillas = QSpinBox()
         self.tarjetas_amarillas.setRange(0, 99)
         self.tarjetas_amarillas.setValue(0)
@@ -465,7 +476,8 @@ class PageGestionParticipantes(QWidget):
         # Tarjetas rojas
         layout_rojas = QVBoxLayout()
         layout_rojas.setSpacing(5)
-        layout_rojas.addWidget(QLabel("Tarjetas rojas:"))
+        self.label_tarjetas_rojas = QLabel("Tarjetas rojas:")
+        layout_rojas.addWidget(self.label_tarjetas_rojas)
         self.tarjetas_rojas = QSpinBox()
         self.tarjetas_rojas.setRange(0, 99)
         self.tarjetas_rojas.setValue(0)
@@ -483,18 +495,18 @@ class PageGestionParticipantes(QWidget):
         layout_asignaciones.setSpacing(15)
         
         # Grupo Equipo
-        grupo_equipo = QGroupBox("Equipo")
+        self.grupo_equipo_asignacion = QGroupBox("Equipo")
         layout_grupo_equipo = QVBoxLayout()
         layout_grupo_equipo.setSpacing(10)
         
         # Label de estado
-        self.equipo_actual = QLabel("Equipo actual: Sin equipo")
+        self.equipo_actual = QLabel(self.tr("Equipo actual: Sin equipo"))
         self.equipo_actual.setStyleSheet("font-weight: bold;")
         layout_grupo_equipo.addWidget(self.equipo_actual)
         
         # ComboBox para seleccionar equipo
-        label_combo = QLabel("Seleccionar equipo:")
-        layout_grupo_equipo.addWidget(label_combo)
+        self.label_seleccionar_equipo = QLabel("Seleccionar equipo:")
+        layout_grupo_equipo.addWidget(self.label_seleccionar_equipo)
         self.comboEquipo = QComboBox()
         self.comboEquipo.addItem("-- Selecciona equipo --", None)
         layout_grupo_equipo.addWidget(self.comboEquipo)
@@ -508,11 +520,11 @@ class PageGestionParticipantes(QWidget):
         layout_botones_equipo.addWidget(self.btnQuitarEquipo)
         layout_grupo_equipo.addLayout(layout_botones_equipo)
         
-        grupo_equipo.setLayout(layout_grupo_equipo)
-        layout_asignaciones.addWidget(grupo_equipo)
+        self.grupo_equipo_asignacion.setLayout(layout_grupo_equipo)
+        layout_asignaciones.addWidget(self.grupo_equipo_asignacion)
         
         # Grupo Árbitro
-        grupo_arbitro = QGroupBox("Partidos arbitrados")
+        self.grupo_partidos_arbitrados = QGroupBox("Partidos arbitrados")
         layout_grupo_arbitro = QVBoxLayout()
         
         self.partidos_arbitrados = QTableWidget()
@@ -541,8 +553,8 @@ class PageGestionParticipantes(QWidget):
         self.label_info_arbitros.setWordWrap(True)
         layout_grupo_arbitro.addWidget(self.label_info_arbitros)
         
-        grupo_arbitro.setLayout(layout_grupo_arbitro)
-        layout_asignaciones.addWidget(grupo_arbitro)
+        self.grupo_partidos_arbitrados.setLayout(layout_grupo_arbitro)
+        layout_asignaciones.addWidget(self.grupo_partidos_arbitrados)
         
         layout_asignaciones.addStretch()
         tab_asignaciones.setLayout(layout_asignaciones)
@@ -632,7 +644,7 @@ class PageGestionParticipantes(QWidget):
         if not es_jugador:
             self.equipo_asignado.setCurrentIndex(0)
             self.posicion.setCurrentIndex(0)
-            self.equipo_actual.setText("Equipo actual: Sin equipo")
+            self.equipo_actual.setText(self.tr("Equipo actual: Sin equipo"))
     
     def on_es_arbitro_changed(self, state: int):
         """Maneja el cambio en el checkbox es_arbitro."""
@@ -711,13 +723,15 @@ class PageGestionParticipantes(QWidget):
         """Establece la lista de equipos en los combos."""
         # Actualizar filtro de equipos
         self.filtro_equipo.clear()
-        self.filtro_equipo.addItem("Todos")
+        self.filtro_equipo.addItem(self.tr("Todos"))
         self.filtro_equipo.addItems(equipos)
         
-        # Actualizar combo de equipo asignado
+        # Actualizar combo de equipo asignado (sin el primer item "Todos")
         self.equipo_asignado.clear()
-        self.equipo_asignado.addItem("Sin equipo")
-        self.equipo_asignado.addItems(equipos)
+        self.equipo_asignado.addItem(self.tr("Sin equipo"))
+        # Los equipos que vienen pueden incluir "Sin equipo", hay que filtrarlo
+        equipos_filtrados = [eq for eq in equipos if eq != "Sin equipo"]
+        self.equipo_asignado.addItems(equipos_filtrados)
     
     def cargar_combo_equipos_filtro(self, equipos: list[str]):
         """Carga la lista de equipos en el combo de filtro."""
@@ -759,9 +773,9 @@ class PageGestionParticipantes(QWidget):
         
         # Actualizar label de estado
         if equipo_nombre and equipo_nombre != 'Sin equipo':
-            self.equipo_actual.setText(f"Equipo actual: {equipo_nombre}")
+            self.equipo_actual.setText(f"{self.tr('Equipo actual:')} {equipo_nombre}")
         else:
-            self.equipo_actual.setText("Equipo actual: Sin equipo")
+            self.equipo_actual.setText(self.tr("Equipo actual: Sin equipo"))
         
         # Preseleccionar equipo en combo si tiene uno asignado
         if equipo_nombre and equipo_nombre != 'Sin equipo':
@@ -815,8 +829,11 @@ class PageGestionParticipantes(QWidget):
         return {
             'busqueda': self.buscar_participante.text().strip(),
             'rol': self.filtro_rol.currentText(),
+            'rol_index': self.filtro_rol.currentIndex(),
             'equipo': self.filtro_equipo.currentText(),
-            'curso': self.filtro_curso.currentText()
+            'equipo_index': self.filtro_equipo.currentIndex(),
+            'curso': self.filtro_curso.currentText(),
+            'curso_index': self.filtro_curso.currentIndex()
         }
     
     def set_datos_formulario(self, datos: dict):
@@ -859,8 +876,8 @@ class PageGestionParticipantes(QWidget):
             self.posicion.setCurrentIndex(index_posicion)
         
         # Actualizar label de equipo actual
-        equipo_mostrar = equipo if equipo and equipo != 'Sin equipo' else 'Sin equipo'
-        self.equipo_actual.setText(f"Equipo actual: {equipo_mostrar}")
+        equipo_mostrar = equipo if equipo and equipo != 'Sin equipo' else self.tr('Sin equipo')
+        self.equipo_actual.setText(f"{self.tr('Equipo actual:')} {equipo_mostrar}")
         
         # Actualizar UI del tab Asignaciones
         self.refresh_equipo_ui()
@@ -969,8 +986,8 @@ class PageGestionParticipantes(QWidget):
         else:
             self.equipo_asignado.setCurrentIndex(0)
         
-        equipo_mostrar = equipo_nombre if equipo_nombre and equipo_nombre != 'Sin equipo' else 'Sin equipo'
-        self.equipo_actual.setText(f"Equipo actual: {equipo_mostrar}")
+        equipo_mostrar = equipo_nombre if equipo_nombre and equipo_nombre != 'Sin equipo' else self.tr('Sin equipo')
+        self.equipo_actual.setText(f"{self.tr('Equipo actual:')} {equipo_mostrar}")
         
         posicion = datos.get('posicion', 'Sin definir')
         index_posicion = self.posicion.findText(posicion)
@@ -1002,7 +1019,7 @@ class PageGestionParticipantes(QWidget):
         self.goles.setValue(0)
         self.tarjetas_amarillas.setValue(0)
         self.tarjetas_rojas.setValue(0)
-        self.equipo_actual.setText("Equipo actual: Sin equipo")
+        self.equipo_actual.setText(self.tr("Equipo actual: Sin equipo"))
         self.comboEquipo.setCurrentIndex(0)
         self.partidos_arbitrados.setRowCount(0)
         self.tabla_participantes.clearSelection()
@@ -1085,6 +1102,111 @@ class PageGestionParticipantes(QWidget):
             self.partidos_arbitrados.setItem(
                 fila, 3, QTableWidgetItem(str(partido.get('visitante', '')))
             )
+    
+    def changeEvent(self, event):
+        """Maneja eventos de cambio, incluyendo cambio de idioma."""
+        if event.type() == QEvent.Type.LanguageChange:
+            self.retranslate_ui()
+        super().changeEvent(event)
+    
+    def retranslate_ui(self):
+        """Actualiza todos los textos traducibles de la interfaz."""
+        # Título
+        self.titulo.setText(self.tr("Gestión de participantes"))
+        
+        # Búsqueda y botones principales
+        self.buscar_participante.setPlaceholderText(self.tr("Buscar por nombre…"))
+        self.nuevo_participante.setText(self.tr("Nuevo"))
+        self.nuevo_participante.setToolTip(self.tr("Nuevo participante"))
+        self.editar_participante.setText(self.tr("Editar"))
+        self.editar_participante.setToolTip(self.tr("Editar participante seleccionado"))
+        self.eliminar_participante.setText(self.tr("Eliminar"))
+        self.eliminar_participante.setToolTip(self.tr("Eliminar participante seleccionado"))
+        
+        # Labels de filtros
+        self.label_filtro_rol.setText(self.tr("Rol:"))
+        self.label_filtro_equipo.setText(self.tr("Equipo:"))
+        self.label_filtro_curso.setText(self.tr("Curso:"))
+        
+        # Filtros - actualizar items de combobox
+        self.filtro_rol.clear()
+        self.filtro_rol.addItems([self.tr("Todos"), self.tr("Jugadores"), self.tr("Árbitros"), self.tr("Ambos")])
+        
+        self.filtro_curso.clear()
+        self.filtro_curso.addItems([self.tr("Todos"), "1º ESO", "2º ESO", "3º ESO", "4º ESO"])
+        
+        # Headers de tabla
+        self.tabla_participantes.setHorizontalHeaderLabels([
+            self.tr("Nombre"), 
+            self.tr("F. Nac."), 
+            self.tr("Curso"), 
+            self.tr("Rol(es)"), 
+            self.tr("Equipo")
+        ])
+        
+        # Panel de detalle
+        self.grupo_detalle.setTitle(self.tr("Detalle del participante"))
+        
+        # Tabs del detalle
+        self.tabs_detalle.setTabText(0, self.tr("Datos"))
+        self.tabs_detalle.setTabText(1, self.tr("Estadísticas"))
+        self.tabs_detalle.setTabText(2, self.tr("Asignaciones"))
+        
+        # Labels del formulario (Tab Datos)
+        self.label_nombre_completo.setText(self.tr("Nombre completo:"))
+        self.label_fecha_nacimiento.setText(self.tr("Fecha de nacimiento:"))
+        self.label_curso_form.setText(self.tr("Curso:"))
+        self.label_roles.setText(self.tr("Roles:"))
+        self.es_jugador.setText(self.tr("Es jugador"))
+        self.es_arbitro.setText(self.tr("Es árbitro"))
+        self.label_equipo_asignado.setText(self.tr("Equipo asignado:"))
+        self.label_posicion.setText(self.tr("Posición:"))
+        
+        # Botones del formulario
+        self.guardar_participante.setText(self.tr("Guardar"))
+        self.cancelar_edicion.setText(self.tr("Cancelar"))
+        
+        # Tab Datos - actualizar combobox de posición
+        posiciones = [
+            self.tr("Sin definir"),
+            self.tr("Portero"),
+            self.tr("Defensa"),
+            self.tr("Centrocampista"),
+            self.tr("Delantero")
+        ]
+        pos_actual = self.posicion.currentIndex()
+        self.posicion.clear()
+        self.posicion.addItems(posiciones)
+        if pos_actual >= 0:
+            self.posicion.setCurrentIndex(pos_actual)
+        
+        # Tabs de asignaciones - botones
+        self.btnGuardarEquipo.setText(self.tr("Guardar asignación"))
+        self.btnQuitarEquipo.setText(self.tr("Quitar equipo"))
+        
+        # Tab Estadísticas - labels
+        self.label_goles.setText(self.tr("Goles:"))
+        self.label_tarjetas_amarillas.setText(self.tr("Tarjetas amarillas:"))
+        self.label_tarjetas_rojas.setText(self.tr("Tarjetas rojas:"))
+        
+        # Tab Asignaciones - grupos y labels
+        self.grupo_equipo_asignacion.setTitle(self.tr("Equipo"))
+        self.label_seleccionar_equipo.setText(self.tr("Seleccionar equipo:"))
+        self.grupo_partidos_arbitrados.setTitle(self.tr("Partidos arbitrados"))
+        self.label_info_arbitros.setText(self.tr("La asignación de árbitros se gestiona desde la sección Partidos."))
+        
+        # Headers de tabla de partidos arbitrados
+        self.partidos_arbitrados.setHorizontalHeaderLabels([
+            self.tr("Ronda"),
+            self.tr("Fecha"),
+            self.tr("Local"),
+            self.tr("Visitante")
+        ])
+        
+        # Refrescar el label de equipo actual si hay participante cargado
+        if hasattr(self, 'participante_seleccionado_id') and self.participante_seleccionado_id:
+            # El texto se actualizará cuando se refresque el participante
+            pass
 
 
 # Alias para mantener compatibilidad con código existente

@@ -4,7 +4,7 @@ from PySide6.QtWidgets import (
     QPushButton, QTableWidget, QTableWidgetItem, QSplitter,
     QGroupBox, QHeaderView, QFrame
 )
-from PySide6.QtCore import Qt, Signal, QSize
+from PySide6.QtCore import Qt, Signal, QSize, QEvent
 from PySide6.QtGui import QPixmap, QIcon, QPainter
 from PySide6.QtSvg import QSvgRenderer
 from pathlib import Path
@@ -70,10 +70,10 @@ class PageGestionEquipos(QWidget):
     
     def crear_titulo(self, layout_padre: QVBoxLayout):
         """Crea el título de la página."""
-        titulo = QLabel("Gestión de equipos")
-        titulo.setObjectName("titleLabel")
-        titulo.setAlignment(Qt.AlignmentFlag.AlignLeft)
-        layout_padre.addWidget(titulo)
+        self.titulo = QLabel(self.tr("Gestión de equipos"))
+        self.titulo.setObjectName("titleLabel")
+        self.titulo.setAlignment(Qt.AlignmentFlag.AlignLeft)
+        layout_padre.addWidget(self.titulo)
     
     def crear_barra_acciones(self, layout_padre: QVBoxLayout):
         """Crea la barra de acciones con búsqueda y botones."""
@@ -173,27 +173,27 @@ class PageGestionEquipos(QWidget):
         # Nombre del equipo
         layout_nombre = QVBoxLayout()
         layout_nombre.setSpacing(5)
-        label_nombre = QLabel("Nombre:")
+        self.label_nombre = QLabel("Nombre:")
         self.nombre_equipo = QLineEdit()
         self.nombre_equipo.setPlaceholderText("Nombre del equipo")
-        layout_nombre.addWidget(label_nombre)
+        layout_nombre.addWidget(self.label_nombre)
         layout_nombre.addWidget(self.nombre_equipo)
         layout_detalle.addLayout(layout_nombre)
         
         # Colores del equipo
         layout_colores = QVBoxLayout()
         layout_colores.setSpacing(5)
-        label_colores = QLabel("Colores:")
+        self.label_colores = QLabel("Colores:")
         self.colores_equipo = QLineEdit()
         self.colores_equipo.setPlaceholderText("Ej: Rojo y blanco")
-        layout_colores.addWidget(label_colores)
+        layout_colores.addWidget(self.label_colores)
         layout_colores.addWidget(self.colores_equipo)
         layout_detalle.addLayout(layout_colores)
         
         # Escudo del equipo
         layout_escudo = QVBoxLayout()
         layout_escudo.setSpacing(5)
-        label_escudo = QLabel("Escudo:")
+        self.label_escudo = QLabel("Escudo:")
         
         # Preview del escudo
         self.preview_escudo = QLabel("Sin escudo")
@@ -211,7 +211,7 @@ class PageGestionEquipos(QWidget):
         # Botón de escudo
         self.seleccionar_escudo = QPushButton("Seleccionar escudo")
         
-        layout_escudo.addWidget(label_escudo)
+        layout_escudo.addWidget(self.label_escudo)
         layout_escudo.addWidget(self.preview_escudo)
         layout_escudo.addWidget(self.seleccionar_escudo)
         layout_detalle.addLayout(layout_escudo)
@@ -507,6 +507,44 @@ class PageGestionEquipos(QWidget):
         self.preview_escudo.setProperty("empty", False)
         self.preview_escudo.style().unpolish(self.preview_escudo)
         self.preview_escudo.style().polish(self.preview_escudo)
+    
+    def changeEvent(self, event):
+        """Maneja eventos de cambio, incluyendo cambio de idioma."""
+        if event.type() == QEvent.Type.LanguageChange:
+            self.retranslate_ui()
+        super().changeEvent(event)
+    
+    def retranslate_ui(self):
+        """Actualiza todos los textos traducibles de la interfaz."""
+        # Título principal
+        self.titulo.setText(self.tr("Gestión de equipos"))
+        
+        # Barra de búsqueda y botones de acción
+        self.buscar_equipo.setPlaceholderText(self.tr("Buscar equipo…"))
+        self.nuevo_equipo.setText(self.tr("Nuevo equipo"))
+        self.editar_equipo.setText(self.tr("Editar equipo"))
+        self.eliminar_equipo.setText(self.tr("Eliminar equipo"))
+        
+        # Headers de tabla
+        self.tabla_equipos.setHorizontalHeaderLabels([
+            self.tr("Nombre"), 
+            self.tr("Colores"), 
+            self.tr("Escudo"), 
+            self.tr("Nº jugadores")
+        ])
+        
+        # Panel de detalle
+        self.grupo_detalle.setTitle(self.tr("Detalle del equipo"))
+        self.label_nombre.setText(self.tr("Nombre:"))
+        self.nombre_equipo.setPlaceholderText(self.tr("Nombre del equipo"))
+        self.label_colores.setText(self.tr("Colores:"))
+        self.colores_equipo.setPlaceholderText(self.tr("Ej: Rojo y blanco"))
+        self.label_escudo.setText(self.tr("Escudo:"))
+        if self.preview_escudo.property("empty"):
+            self.preview_escudo.setText(self.tr("Sin escudo"))
+        self.seleccionar_escudo.setText(self.tr("Seleccionar escudo"))
+        self.guardar_equipo.setText(self.tr("Guardar equipo"))
+        self.cancelar_edicion.setText(self.tr("Cancelar"))
     
     def resizeEvent(self, event):
         """Sobrescribe el evento de redimensionar para reescalar el escudo."""

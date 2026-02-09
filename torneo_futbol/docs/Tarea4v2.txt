@@ -1,0 +1,136 @@
+Enunciado Tarea 4 tema 6: Reloj digital con PySide6
+Título: Creación de un componente visual reutilizable – Reloj digital
+Descripción:
+
+Usando la herramienta de diseño de interfaces gráficas Qt Designer, el lenguaje Python y la biblioteca
+PySide6, crear un componente visual reutilizable que represente un reloj digital y que pueda
+insertarse en cualquier interfaz gráfica.
+
+El reloj deberá poder integrarse en cualquier interfaz gráfica sin depender de elementos externos,
+gestionando internamente todas sus funcionalidades (hora, temporizador, cronómetro y alarmas) y
+exponiendo una serie de propiedades configurables y eventos propios.
+
+El componente deberá poder funcionar tanto como reloj digital (mostrando la hora actual) como
+temporizador o cronómetro, permitiendo su uso en distintos contextos.
+
+Por último, se deberá integrar el reloj digital en la aplicación de gestión de torneos de fútbol. En este
+caso, el reloj servirá para cronometrar de los partidos y deberá ser visible en la interfaz durante el
+desarrollo de un partido.
+
+El reloj debe poder configurarse desde la aplicación, y la señal de alarma o aviso del reloj deberá
+reflejarse en algún componente de la interfaz, mostrando un mensaje cuando se cumpla el tiempo del
+partido.
+
+Notas:
+
+Cualquier validación del componente se podrá realizar directamente mediante su integración en la
+aplicación.
+
+La configuración del componente desde la aplicación de gestión de torneos deberá realizarse
+exclusivamente a través de sus propiedades y métodos públicos, sin acceder directamente a
+variables internas ni a la lógica de funcionamiento del reloj.
+
+
+Requisitos de la práctica
+1. Funcionalidades básicas
+   que implementar
+
+   Una propiedad mode que determine su modo de funcionamiento. Esta propiedad será de tipo
+    enumerado (Enum) y podrá tomar, al menos, los siguientes valores:
+          o clock: el componente funcionará como reloj digital, mostrando la hora actual y
+              permitiendo el uso de alarmas.
+          o timer: el componente funcionará como temporizador o cronómetro.
+
+2. Funcionalidades de
+   reloj
+
+        Una propiedad booleana para indicar si el formato es de 12 o 24 horas.
+        Una propiedad booleana para indicar si queremos activar una alarma.
+         El funcionamiento de la alarma consistirá en que se podrá configurar el componente para que,
+         a una determinada hora, se muestre un mensaje.
+        Dos propiedades para determinar la hora y el minuto para los cuales queremos programar la
+         alarma. Ambas propiedades serán de tipo entero.
+      Una propiedad para configurar el mensaje de texto que se mostrará cuando se produzca el
+       salto de la alarma. Esta propiedad será de tipo texto (String).
+      Función de alarma: si se programa a una hora determinada, deberá generar un evento o señal
+       cuando se llegue a dicha hora.
+
+3. Funcionalidades de
+   temporizador /
+   cronómetro
+
+      El componente deberá poder funcionar en modo temporizador, permitiendo medir el tiempo
+       de forma progresiva o regresiva.
+      El temporizador deberá:
+            o Gestionar internamente el paso del tiempo mediante un QTimer.
+            o Permitir iniciar, pausar y reiniciar el conteo del tiempo.
+      Se deberá disponer de propiedades configurables como:
+            o Modo de funcionamiento (reloj / temporizador).
+            o Duración del temporizador.
+            o Formato de visualización del tiempo.
+      El componente deberá emitir una señal o evento cuando se alcance el tiempo configurado en
+       el temporizador, permitiendo que otras partes de la aplicación reaccionen a dicho evento.
+
+4. Internacionalización
+   (traducciones)
+
+      El componente y la aplicación deberán estar preparados para mostrar textos en distintos
+       idiomas.
+      Se deberá investigar el sistema de traducciones de Qt, utilizando las herramientas y clases
+       proporcionadas por PySide6.
+      Como mínimo, la aplicación deberá poder mostrarse en dos idiomas distintos.
+      El cambio de idioma deberá reflejarse en los textos visibles del componente y de la interfaz.
+
+(Investigar el uso de QTranslator y otros módulos de traducción de Qt.)
+
+
+
+
+5. Entregables
+    1. La entrega se realizará a través de la plataforma, en un único fichero comprimido (zip) en el
+       que se encuentre el proyecto desarrollado con sus carpetas y ficheros según modelo MVC.
+    2. El proyecto (gestión torneo + componente) y el componente reutilizable deberán
+       entregarse por separado en formato ejecutable (.exe) completamente funcional, de modo
+       que el usuario final pueda ejecutar la aplicación directamente mediante doble clic, sin necesidad
+       de realizar ninguna configuración previa ni posterior. La calificación será de 0 para cualquier
+       proyecto que no funcione de esta manera.
+    3. Se deberá incluir un archivo README que contenga todas las consideraciones o las instrucciones
+       que desees realizar.
+
+
+
+
+Criterios de evaluación
+Criterio                                                                                 Puntuación
+Creación del componente: implementar la clase del reloj digital como widget             15%
+autónomo, con todos los elementos de reloj, cronómetro y alarma integrados.
+Propiedades y métodos de acceso: definir las propiedades configurables del              10%
+componente y sus getters y setters (modo, formato, alarma).
+Eventos y señales: crear eventos y señales necesarias (alarmTriggered y                 10%
+timerFinished).
+Actualización del tiempo: añadir el código para que el cronómetro y la hora se          10%
+actualicen cada segundo y refresquen el display interno del componente.
+Gestión de alarma: añadir la lógica interna para que la señal de alarma se dispare al   20%
+llegar al tiempo configurado, sin detener el cronómetro.
+Prueba del widget: comprobar el funcionamiento del componente de forma autónoma         10%
+como widget independiente.
+Reacción a eventos: desde la aplicación padre, capturar la señal de alarma y mostrar    10%
+un mensaje o actualizar una etiqueta al producirse.
+Integración y traducciones: integrar el componente en la aplicación de torneos,         10%
+configurar sus propiedades desde la app, reaccionar a las señales y aplicar
+traducciones (QTranslator) en los textos visibles.
+Sugerencias para los alumnos:
+    • La realización de esta práctica puede incluir múltiples variantes, puesto que depende en gran
+      medida de cómo te sea más cómodo programar.
+    • Debes de definir las propiedades de los componentes como públicas para que aparezcan en el
+      panel de propiedades del componente.
+    • Tendrás que definir una interfaz para la definición de los métodos que necesites implementar
+      cuando el componente sea utilizado.
+
+
+Material complementario:
+    • En el fichero adjunto se encuentra el código para la creación de un nuevo componente y su
+      utilización posterior en una interfaz gráfica.
+    • Se puede utilizar a modo de ejemplo. Muchos de los comentarios ayudarán también a realizar
+      la tarea propuesta
+

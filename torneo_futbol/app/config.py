@@ -18,12 +18,24 @@ else:
 RESOURCES_DIR = BASE_DIR / "app" / "resources"
 STYLES_DIR = RESOURCES_DIR / "styles"
 
+# Directorio de traducciones
+# Las traducciones siempre están en BASE_DIR/translations
+# (en desarrollo es la carpeta del proyecto, empaquetado es sys._MEIPASS)
+TRANSLATIONS_DIR = BASE_DIR / "translations"
+
 # Base de datos
 DB_NAME = "torneo.db"
 DB_PATH = DATA_DIR / DB_NAME
 
 # Tema por defecto
 DEFAULT_THEME = "light"
+
+# Idioma por defecto
+DEFAULT_LANGUAGE = "es"  # Español por defecto
+AVAILABLE_LANGUAGES = {
+    "es": "Español",
+    "en": "English"
+}
 
 # Versión de la aplicación
 VERSION = "1.0.0"

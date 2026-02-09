@@ -82,18 +82,19 @@ class ControladorGestionParticipantes:
         if busqueda == "":
             busqueda = None
         
+        # Usar índice 0 para "Todos/All" en lugar de comparar texto
         filtro_rol = filtros.get("rol")
-        if filtro_rol == "Todos":
+        if filtros.get("rol_index") == 0:  # Índice 0 = "Todos/All"
             filtro_rol = None
         
         filtro_curso = filtros.get("curso")
-        if filtro_curso == "Todos":
+        if filtros.get("curso_index") == 0:  # Índice 0 = "Todos/All"
             filtro_curso = None
         
-        # Obtener equipo_id si el filtro no es "Todos"
+        # Obtener equipo_id si el filtro no es "Todos/All" (índice 0)
         filtro_equipo_id = None
         nombre_equipo = filtros.get("equipo")
-        if nombre_equipo and nombre_equipo != "Todos":
+        if nombre_equipo and filtros.get("equipo_index") != 0:
             filtro_equipo_id = self.equipos_dict.get(nombre_equipo)
         
         print(f"🔍 Cargando participantes con filtros: busqueda={busqueda}, rol={filtro_rol}, equipo_id={filtro_equipo_id}, curso={filtro_curso}")

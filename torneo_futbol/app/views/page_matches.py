@@ -149,10 +149,10 @@ class PageCalendarioPartidos(QWidget):
     
     def crear_cabecera(self, layout_padre: QVBoxLayout):
         """Crea la cabecera con el título."""
-        titulo = QLabel("Calendario / Partidos")
-        titulo.setObjectName("titleLabel")
-        titulo.setAlignment(Qt.AlignmentFlag.AlignLeft)
-        layout_padre.addWidget(titulo)
+        self.titulo = QLabel(self.tr("Calendario / Partidos"))
+        self.titulo.setObjectName("titleLabel")
+        self.titulo.setAlignment(Qt.AlignmentFlag.AlignLeft)
+        layout_padre.addWidget(self.titulo)
     
     def crear_barra_filtros_acciones(self, layout_padre: QVBoxLayout):
         """Crea la barra de filtros y botones de acción."""
@@ -161,14 +161,16 @@ class PageCalendarioPartidos(QWidget):
         
         # === IZQUIERDA: FILTROS ===
         # Filtro por ronda
-        layout_barra.addWidget(QLabel("Ronda:"))
+        self.label_filtro_ronda = QLabel("Ronda:")
+        layout_barra.addWidget(self.label_filtro_ronda)
         self.filtro_ronda = QComboBox()
         self.filtro_ronda.addItems(["Todos", "Octavos", "Cuartos", "Semifinales", "Final"])
         self.filtro_ronda.setMinimumWidth(120)
         layout_barra.addWidget(self.filtro_ronda)
         
         # Filtro por estado
-        layout_barra.addWidget(QLabel("Estado:"))
+        self.label_filtro_estado = QLabel("Estado:")
+        layout_barra.addWidget(self.label_filtro_estado)
         self.filtro_estado = QComboBox()
         self.filtro_estado.addItems(["Todos", "Pendientes", "Jugados"])
         self.filtro_estado.setMinimumWidth(120)
@@ -222,17 +224,17 @@ class PageCalendarioPartidos(QWidget):
         layout_calendario = QVBoxLayout()
         layout_calendario.setContentsMargins(0, 0, 10, 0)
         
-        titulo_calendario = QLabel("Calendario mensual")
-        titulo_calendario.setObjectName("subtitleLabel")
-        layout_calendario.addWidget(titulo_calendario)
+        self.titulo_calendario = QLabel("Calendario mensual")
+        self.titulo_calendario.setObjectName("subtitleLabel")
+        layout_calendario.addWidget(self.titulo_calendario)
         
         self.calendario_partidos = CalendarioPartidos()
         self.calendario_partidos.setMinimumHeight(400)
         layout_calendario.addWidget(self.calendario_partidos)
         
-        info_label = QLabel("💡 Haga clic en un día con partidos para ver detalles")
-        info_label.setStyleSheet("color: rgba(128, 128, 128, 0.7); font-size: 9pt;")
-        layout_calendario.addWidget(info_label)
+        self.info_label = QLabel("💡 Haga clic en un día con partidos para ver detalles")
+        self.info_label.setStyleSheet("color: rgba(128, 128, 128, 0.7); font-size: 9pt;")
+        layout_calendario.addWidget(self.info_label)
         
         widget_calendario.setLayout(layout_calendario)
         splitter.addWidget(widget_calendario)
@@ -321,10 +323,11 @@ class PageCalendarioPartidos(QWidget):
         # Equipo Local
         container_local = QVBoxLayout()
         container_local.setSpacing(5)
-        container_local.addWidget(QLabel("Equipo Local:"))
+        self.label_equipo_local = QLabel("Equipo Local:")
+        container_local.addWidget(self.label_equipo_local)
         self.comboLocal = QComboBox()
         self.comboLocal.setObjectName("ComboAccent")
-        self.comboLocal.addItem("-- Seleccionar --", None)
+        self.comboLocal.addItem(self.tr("-- Seleccionar --"), None)
         self.comboLocal.setEditable(False)
         self.comboLocal.setInsertPolicy(QComboBox.InsertPolicy.NoInsert)
         self.comboLocal.setMaxVisibleItems(8)
@@ -336,10 +339,11 @@ class PageCalendarioPartidos(QWidget):
         # Equipo Visitante
         container_visitante = QVBoxLayout()
         container_visitante.setSpacing(5)
-        container_visitante.addWidget(QLabel("Equipo Visitante:"))
+        self.label_equipo_visitante = QLabel("Equipo Visitante:")
+        container_visitante.addWidget(self.label_equipo_visitante)
         self.comboVisitante = QComboBox()
         self.comboVisitante.setObjectName("ComboAccent")
-        self.comboVisitante.addItem("-- Seleccionar --", None)
+        self.comboVisitante.addItem(self.tr("-- Seleccionar --"), None)
         self.comboVisitante.setEditable(False)
         self.comboVisitante.setInsertPolicy(QComboBox.InsertPolicy.NoInsert)
         self.comboVisitante.setMaxVisibleItems(8)
@@ -358,7 +362,8 @@ class PageCalendarioPartidos(QWidget):
         # Fase
         container_fase = QVBoxLayout()
         container_fase.setSpacing(5)
-        container_fase.addWidget(QLabel("Fase:"))
+        self.label_fase = QLabel("Fase:")
+        container_fase.addWidget(self.label_fase)
         self.comboFase = QComboBox()
         self.comboFase.setObjectName("ComboAccent")
         self.comboFase.setMaxVisibleItems(6)
@@ -379,7 +384,8 @@ class PageCalendarioPartidos(QWidget):
         # Estado
         container_estado = QVBoxLayout()
         container_estado.setSpacing(5)
-        container_estado.addWidget(QLabel("Estado:"))
+        self.label_estado_partido = QLabel("Estado:")
+        container_estado.addWidget(self.label_estado_partido)
         self.comboEstado = QComboBox()
         self.comboEstado.setMinimumHeight(34)
         self.comboEstado.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
@@ -393,7 +399,8 @@ class PageCalendarioPartidos(QWidget):
         # FILA 3: Fecha y hora (ancho completo)
         layout_fecha = QVBoxLayout()
         layout_fecha.setSpacing(5)
-        layout_fecha.addWidget(QLabel("Fecha y hora:"))
+        self.label_fecha_hora = QLabel("Fecha y hora:")
+        layout_fecha.addWidget(self.label_fecha_hora)
         self.fecha_hora = QDateTimeEdit()
         self.fecha_hora.setCalendarPopup(True)
         self.fecha_hora.setDisplayFormat("dd/MM/yyyy HH:mm")
@@ -406,10 +413,11 @@ class PageCalendarioPartidos(QWidget):
         # FILA 4: Árbitro (ancho completo)
         layout_arbitro = QVBoxLayout()
         layout_arbitro.setSpacing(5)
-        layout_arbitro.addWidget(QLabel("Árbitro:"))
+        self.label_arbitro = QLabel("Árbitro:")
+        layout_arbitro.addWidget(self.label_arbitro)
         self.comboArbitro = QComboBox()
         self.comboArbitro.setObjectName("ComboAccent")
-        self.comboArbitro.addItem("Sin árbitro", None)
+        self.comboArbitro.addItem(self.tr("Sin árbitro"), None)
         self.comboArbitro.setEditable(False)
         self.comboArbitro.setInsertPolicy(QComboBox.InsertPolicy.NoInsert)
         self.comboArbitro.setMaxVisibleItems(8)
@@ -1234,7 +1242,7 @@ class PageCalendarioPartidos(QWidget):
     def set_lista_arbitros(self, arbitros: list[str]):
         """Establece la lista de árbitros en el combo."""
         self.comboArbitro.clear()
-        self.comboArbitro.addItem("Sin árbitro")
+        self.comboArbitro.addItem(self.tr("Sin árbitro"))
         self.comboArbitro.addItems(arbitros)
     
     def set_datos_partido(self, datos: dict):
@@ -1726,10 +1734,10 @@ class PageCalendarioPartidos(QWidget):
     def cargar_equipos_en_combos(self, equipos: list[dict]):
         """Carga los equipos en los combos Local y Visitante."""
         self.comboLocal.clear()
-        self.comboLocal.addItem("-- Seleccionar equipo --", None)
+        self.comboLocal.addItem(self.tr("-- Seleccionar --"), None)
         
         self.comboVisitante.clear()
-        self.comboVisitante.addItem("-- Seleccionar equipo --", None)
+        self.comboVisitante.addItem(self.tr("-- Seleccionar --"), None)
         
         for equipo in equipos:
             self.comboLocal.addItem(equipo['nombre'], equipo['id'])
@@ -1751,7 +1759,7 @@ class PageCalendarioPartidos(QWidget):
     def cargar_arbitros_en_combo(self, arbitros: list[str]):
         """Carga los árbitros en el combo."""
         self.comboArbitro.clear()
-        self.comboArbitro.addItem("Sin árbitro", None)
+        self.comboArbitro.addItem(self.tr("Sin árbitro"), None)
         arbitros_validos = []
         for arb in arbitros:
             if arb != "Sin asignar" and arb != "Sin árbitro":
@@ -1998,6 +2006,69 @@ class PageCalendarioPartidos(QWidget):
             'arbitro_id': arbitro_id,
             'arbitro_nombre': arbitro_text
         }
+    
+    def changeEvent(self, event):
+        """Maneja eventos de cambio, incluyendo cambio de idioma."""
+        if event.type() == QEvent.Type.LanguageChange:
+            self.retranslate_ui()
+        super().changeEvent(event)
+    
+    def retranslate_ui(self):
+        """Actualiza todos los textos traducibles de la interfaz."""
+        # Título principal
+        self.titulo.setText(self.tr("Calendario / Partidos"))
+        
+        # Labels de filtros
+        self.label_filtro_ronda.setText(self.tr("Ronda:"))
+        self.label_filtro_estado.setText(self.tr("Estado:"))
+        
+        # Filtros
+        self.filtro_ronda.clear()
+        self.filtro_ronda.addItems([self.tr("Todos"), self.tr("Octavos"), self.tr("Cuartos"), self.tr("Semifinales"), self.tr("Final")])
+        
+        self.filtro_estado.clear()
+        self.filtro_estado.addItems([self.tr("Todos"), self.tr("Pendientes"), self.tr("Jugados")])
+        
+        # Botones principales
+        self.btnNuevoPartidoTop.setText(self.tr("Nuevo partido"))
+        self.btnReiniciarTorneo.setText(self.tr("Reiniciar torneo"))
+        
+        # Panel calendario
+        self.titulo_calendario.setText(self.tr("Calendario mensual"))
+        self.info_label.setText(self.tr("💡 Haga clic en un día con partidos para ver detalles"))
+        
+        # Panel detalle
+        self.grupo_detalle.setTitle(self.tr("Detalle del partido"))
+        
+        # Tabs del detalle
+        self.tabs_detalle.setTabText(0, self.tr("Datos"))
+        self.tabs_detalle.setTabText(1, self.tr("Convocatoria"))
+        self.tabs_detalle.setTabText(2, self.tr("Resultado"))
+        
+        # Labels del formulario (Tab Datos)
+        self.label_equipo_local.setText(self.tr("Equipo Local:"))
+        self.label_equipo_visitante.setText(self.tr("Equipo Visitante:"))
+        self.label_fase.setText(self.tr("Fase:"))
+        self.label_estado_partido.setText(self.tr("Estado:"))
+        self.label_fecha_hora.setText(self.tr("Fecha y hora:"))
+        self.label_arbitro.setText(self.tr("Árbitro:"))
+        
+        # Actualizar items de comboboxes del formulario
+        # ComboEstado
+        estado_actual = self.comboEstado.currentIndex()
+        self.comboEstado.clear()
+        self.comboEstado.addItems([self.tr("Programado"), self.tr("Jugado"), self.tr("Cancelado")])
+        if estado_actual >= 0 and estado_actual < self.comboEstado.count():
+            self.comboEstado.setCurrentIndex(estado_actual)
+        
+        # Botones del footer
+        self.btnGuardar.setText(self.tr("Guardar"))
+        self.btnEliminar.setText(self.tr("Eliminar"))
+        self.btnCancelar.setText(self.tr("Cancelar"))
+        
+        # Actualizar título del partido si no hay uno seleccionado
+        if not hasattr(self, 'partido_actual_id') or not self.partido_actual_id:
+            self.partido_titulo.setText(self.tr("Seleccione un partido"))
 
 
 # Alias para mantener compatibilidad con código existente

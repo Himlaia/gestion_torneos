@@ -4,7 +4,7 @@ from PySide6.QtWidgets import (
     QPushButton, QGroupBox, QComboBox, QGridLayout,
     QScrollArea, QMessageBox, QFrame, QSpacerItem, QSizePolicy
 )
-from PySide6.QtCore import Qt, Signal
+from PySide6.QtCore import Qt, Signal, QEvent
 from typing import Optional
 import random
 import json
@@ -32,6 +32,7 @@ class BracketWidget(QWidget):
         self.combo_frame_right = None  # Frame del finalista derecho
         self.combos_final = []
         self.bracket_state = None
+        self.round_labels = []  # Almacenar labels de rondas para traducción
         self.setup_ui()
     
     def setup_ui(self):
@@ -90,6 +91,8 @@ class BracketWidget(QWidget):
         title_label.setObjectName("roundTitle")
         title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         title_label.setStyleSheet("font-weight: bold; font-size: 9pt; margin-bottom: 3px;")
+        title_label.setProperty("round_key", title)  # Guardar clave para traducción
+        self.round_labels.append(title_label)  # Almacenar para traducción
         layout.addWidget(title_label)
         
         spacing_map = {"octavos": 6, "cuartos": 40, "semis": 120}
@@ -119,6 +122,8 @@ class BracketWidget(QWidget):
         title_label.setObjectName("roundTitle")
         title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         title_label.setStyleSheet("font-weight: bold; font-size: 9pt; margin-bottom: 3px;")
+        title_label.setProperty("round_key", "Finalista")  # Guardar clave para traducción
+        self.round_labels.append(title_label)  # Almacenar para traducción
         layout.addWidget(title_label)
         
         layout.addStretch(1)
@@ -250,7 +255,8 @@ class BracketWidget(QWidget):
             left_team_id = self.combo_finalista_left.currentData()
             # Añadir corona solo si este equipo es el ganador
             is_winner = ganador_equipo_id is not None and left_team_id == ganador_equipo_id
-            self.title_label_left.setText("👑 Finalista" if is_winner else "Finalista")
+            finalista_text = self.tr("Finalista")
+            self.title_label_left.setText(f"👑 {finalista_text}" if is_winner else finalista_text)
             # Actualizar propiedad visual
             self.combo_frame_left.setProperty("isWinner", is_winner)
             self.combo_frame_left.style().unpolish(self.combo_frame_left)
@@ -260,11 +266,33 @@ class BracketWidget(QWidget):
             right_team_id = self.combo_finalista_right.currentData()
             # Añadir corona solo si este equipo es el ganador
             is_winner = ganador_equipo_id is not None and right_team_id == ganador_equipo_id
-            self.title_label_right.setText("👑 Finalista" if is_winner else "Finalista")
+            finalista_text = self.tr("Finalista")
+            self.title_label_right.setText(f"👑 {finalista_text}" if is_winner else finalista_text)
             # Actualizar propiedad visual
             self.combo_frame_right.setProperty("isWinner", is_winner)
             self.combo_frame_right.style().unpolish(self.combo_frame_right)
             self.combo_frame_right.style().polish(self.combo_frame_right)
+    
+    def retranslate_ui(self):
+        """Actualiza todos los textos traducibles de la interfaz."""
+        # Traducir labels de rondas
+        for label in self.round_labels:
+            round_key = label.property("round_key")
+            if round_key:
+                # Usar tr() del widget padre o crear un contexto de traducción
+                if round_key == "Octavos":
+                    label.setText(self.tr("Octavos"))
+                elif round_key == "Cuartos":
+                    label.setText(self.tr("Cuartos"))
+                elif round_key == "Semifinal":
+                    label.setText(self.tr("Semifinal"))
+                elif round_key == "Finalista":
+                    # Verificar si tiene corona
+                    current_text = label.text()
+                    if "👑" in current_text:
+                        label.setText("👑 " + self.tr("Finalista"))
+                    else:
+                        label.setText(self.tr("Finalista"))
 
 
 class PageCuadroEliminatorias(QWidget):
@@ -312,6 +340,9 @@ class PageCuadroEliminatorias(QWidget):
         self.setLayout(layout_principal)
         
         self.cargar_equipos_en_combos()
+        
+        # Aplicar traducciones iniciales
+        self.retranslate_ui()
     
     def cargar_equipos_en_combos(self):
         """Carga la lista de equipos en todos los combos del bracket."""
@@ -328,10 +359,10 @@ class PageCuadroEliminatorias(QWidget):
             print(f"Error cargando equipos en bracket: {e}")
     
     def crear_cabecera(self, layout_padre: QVBoxLayout):
-        titulo = QLabel("Cuadro de eliminatorias")
-        titulo.setObjectName("titleLabel")
-        titulo.setAlignment(Qt.AlignmentFlag.AlignLeft)
-        layout_padre.addWidget(titulo)
+        self.titulo = QLabel("Cuadro de eliminatorias")
+        self.titulo.setObjectName("titleLabel")
+        self.titulo.setAlignment(Qt.AlignmentFlag.AlignLeft)
+        layout_padre.addWidget(self.titulo)
     
     def crear_botones_accion(self, layout_padre: QVBoxLayout):
         layout_botones = QHBoxLayout()
@@ -357,6 +388,21 @@ class PageCuadroEliminatorias(QWidget):
         self.randomizar_octavos.clicked.connect(self._on_randomizar_wrapper)
         self.guardar_emparejamientos.clicked.connect(self.on_guardar_emparejamientos)
         self.exportar_csv.clicked.connect(self.exportar_csv_signal.emit)
+    
+    def changeEvent(self, event: QEvent):
+        """Captura el evento de cambio de idioma."""
+        if event.type() == QEvent.Type.LanguageChange:
+            self.retranslate_ui()
+            if self.bracket_widget:
+                self.bracket_widget.retranslate_ui()
+        super().changeEvent(event)
+    
+    def retranslate_ui(self):
+        """Actualiza todos los textos traducibles de la interfaz."""
+        self.titulo.setText(self.tr("Cuadro de eliminatorias"))
+        self.randomizar_octavos.setText(self.tr("Randomizar octavos"))
+        self.guardar_emparejamientos.setText(self.tr("Guardar emparejamientos"))
+        self.exportar_csv.setText(self.tr("Exportar resultados (CSV)"))
     
     def _on_randomizar_wrapper(self):
         """Wrapper que emite la señal para que el controlador maneje la randomización.

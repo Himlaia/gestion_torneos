@@ -4,14 +4,16 @@ from PySide6.QtWidgets import (
     QMenuBar, QMenu, QApplication
 )
 from PySide6.QtGui import QAction
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QTranslator, QEvent
+from pathlib import Path
 
 from app.constants import (
     APP_TITLE, WINDOW_WIDTH, WINDOW_HEIGHT,
     WINDOW_MIN_WIDTH, WINDOW_MIN_HEIGHT,
     PAGE_HOME, PAGE_TEAMS, PAGE_PARTICIPANTS, PAGE_MATCHES,
-    PAGE_BRACKET, PAGE_HELP, PAGE_CREDITS, THEME_LIGHT
+    PAGE_BRACKET, PAGE_TOOLS, PAGE_HELP, PAGE_CREDITS, THEME_LIGHT
 )
+from app.config import AVAILABLE_LANGUAGES, TRANSLATIONS_DIR
 from app.controllers.navigation_controller import NavigationController
 from app.controllers.teams_controller import ControladorGestionEquipos
 from app.controllers.participants_controller import ControladorGestionParticipantes
@@ -24,6 +26,7 @@ from app.views.page_teams import PageGestionEquipos
 from app.views.page_participants import PageParticipants
 from app.views.page_matches import PageMatches
 from app.views.page_bracket import PageBracket
+from app.views.page_tools import PageTools
 from app.views.page_help import PageHelp
 from app.views.page_credits import PageCredits
 
@@ -34,6 +37,8 @@ class MainWindow(QMainWindow):
     def __init__(self):
         """Inicializa la ventana principal."""
         super().__init__()
+        self.translator = None
+        self.current_language = "es"
         self.setup_ui()
         self.create_menu_bar()
         self.setup_navigation()
@@ -71,6 +76,7 @@ class MainWindow(QMainWindow):
         self.page_participantes = PageParticipants()
         self.page_matches = PageMatches()  # ✅ GUARDADA COMO ATRIBUTO
         self.page_bracket = PageBracket()  # ✅ GUARDADA COMO ATRIBUTO
+        self.page_tools = PageTools()
         self.page_help = PageHelp()
         self.page_credits = PageCredits()
         
@@ -80,8 +86,9 @@ class MainWindow(QMainWindow):
         self.stacked_widget.addWidget(self.page_participantes)  # 2 - PARTICIPANTS
         self.stacked_widget.addWidget(self.page_matches)        # 3 - MATCHES
         self.stacked_widget.addWidget(self.page_bracket)        # 4 - BRACKET
-        self.stacked_widget.addWidget(self.page_help)           # 5 - HELP
-        self.stacked_widget.addWidget(self.page_credits)        # 6 - CREDITS
+        self.stacked_widget.addWidget(self.page_tools)          # 5 - TOOLS
+        self.stacked_widget.addWidget(self.page_help)           # 6 - HELP
+        self.stacked_widget.addWidget(self.page_credits)        # 7 - CREDITS
         
         # ✅ Inicializar controladores
         print("[MAIN WINDOW] Inicializando controladores...")
@@ -129,45 +136,65 @@ class MainWindow(QMainWindow):
         menubar = self.menuBar()
         
         # Menú Torneo
-        torneo_menu = menubar.addMenu("Torneo")
+        torneo_menu = menubar.addMenu(self.tr("Torneo"))
         
-        action_home = QAction("Inicio", self)
+        action_home = QAction(self.tr("Inicio"), self)
         action_home.triggered.connect(lambda: self.navigate_to_page(PAGE_HOME))
         torneo_menu.addAction(action_home)
         
         torneo_menu.addSeparator()
         
-        action_teams = QAction("Gestión de equipos", self)
+        action_teams = QAction(self.tr("Gestión de equipos"), self)
         action_teams.triggered.connect(lambda: self.navigate_to_page(PAGE_TEAMS))
         torneo_menu.addAction(action_teams)
         
-        action_participants = QAction("Gestión de participantes", self)
+        action_participants = QAction(self.tr("Gestión de participantes"), self)
         action_participants.triggered.connect(lambda: self.navigate_to_page(PAGE_PARTICIPANTS))
         torneo_menu.addAction(action_participants)
         
-        action_matches = QAction("Calendario / Partidos", self)
+        action_matches = QAction(self.tr("Calendario / Partidos"), self)
         action_matches.triggered.connect(lambda: self.navigate_to_page(PAGE_MATCHES))
         torneo_menu.addAction(action_matches)
         
-        action_bracket = QAction("Cuadro de eliminatorias", self)
+        action_bracket = QAction(self.tr("Cuadro de eliminatorias"), self)
         action_bracket.triggered.connect(lambda: self.navigate_to_page(PAGE_BRACKET))
         torneo_menu.addAction(action_bracket)
         
-        # Menú Ver
-        view_menu = menubar.addMenu("Ver")
+        # Menú Herramientas (independiente)
+        tools_menu = menubar.addMenu(self.tr("Herramientas"))
         
-        action_theme = QAction("Cambiar tema", self)
+        action_tools = QAction(self.tr("Reloj digital"), self)
+        action_tools.triggered.connect(lambda: self.navigate_to_page(PAGE_TOOLS))
+        tools_menu.addAction(action_tools)
+        
+        # Menú Ver
+        view_menu = menubar.addMenu(self.tr("Ver"))
+        
+        action_theme = QAction(self.tr("Cambiar tema"), self)
         action_theme.triggered.connect(self.toggle_theme)
         view_menu.addAction(action_theme)
         
-        # Menú Ayuda
-        help_menu = menubar.addMenu("Ayuda")
+        view_menu.addSeparator()
         
-        action_help = QAction("Ayuda", self)
+        # Submenú Idioma
+        language_menu = view_menu.addMenu(self.tr("Idioma"))
+        
+        action_spanish = QAction(self.tr("Español"), self)
+        action_spanish.triggered.connect(lambda: self.change_language("es"))
+        language_menu.addAction(action_spanish)
+        
+        action_english = QAction(self.tr("English"), self)
+        action_english.triggered.connect(lambda: self.change_language("en"))
+        language_menu.addAction(action_english)
+        
+        # Menú Ayuda
+        help_menu = menubar.addMenu(self.tr("Ayuda"))
+        
+        action_help = QAction(self.tr("Ayuda"), self)
         action_help.triggered.connect(lambda: self.navigate_to_page(PAGE_HELP))
         help_menu.addAction(action_help)
         
-        action_credits = QAction("Créditos", self)
+        action_credits = QAction(self.tr("Créditos"), self)
         action_credits.triggered.connect(lambda: self.navigate_to_page(PAGE_CREDITS))
         help_menu.addAction(action_credits)
     
@@ -179,6 +206,63 @@ class MainWindow(QMainWindow):
             page_index: Índice de la página
         """
         self.nav_controller.navigate_to(page_index)
+    
+    def change_language(self, language_code: str):
+        """Cambia el idioma de la aplicación."""
+        if language_code == self.current_language:
+            return
+        
+        app = QApplication.instance()
+        
+        # Remover traductor anterior si existe
+        if self.translator:
+            app.removeTranslator(self.translator)
+        
+        # Crear nuevo traductor
+        self.translator = QTranslator(app)
+        translations_path = Path(TRANSLATIONS_DIR)
+        
+        # Intentar cargar archivo .qm primero
+        qm_file = translations_path / f"torneo_{language_code}.qm"
+        
+        if qm_file.exists() and self.translator.load(str(qm_file)):
+            app.installTranslator(self.translator)
+            print(f"✓ Idioma cambiado a: {language_code} (.qm)")
+        else:
+            # Fallback a archivo .ts
+            ts_file = translations_path / f"torneo_{language_code}"
+            if self.translator.load(str(ts_file), str(translations_path)):
+                app.installTranslator(self.translator)
+                print(f"✓ Idioma cambiado a: {language_code} (.ts)")
+            else:
+                print(f"⚠ No se pudo cargar idioma: {language_code}")
+                return
+        
+        self.current_language = language_code
+        
+        # Emitir evento de cambio de idioma a todos los widgets
+        event = QEvent(QEvent.Type.LanguageChange)
+        app.sendEvent(app, event)
+        
+        # Recargar la interfaz para reflejar el cambio
+        self.retranslate_ui()
+        
+        print(f"Idioma actualizado a: {AVAILABLE_LANGUAGES.get(language_code, language_code)}")
+    
+    def retranslate_ui(self):
+        """Recarga los textos de la interfaz después de cambiar el idioma."""
+        # Recrear barra de menú
+        self.menuBar().clear()
+        self.create_menu_bar()
+        
+        # Emitir evento LanguageChange a todas las páginas
+        event = QEvent(QEvent.Type.LanguageChange)
+        for i in range(self.stacked_widget.count()):
+            widget = self.stacked_widget.widget(i)
+            if widget:
+                QApplication.sendEvent(widget, event)
+                # Forzar actualización visual
+                widget.update()
     
     def toggle_theme(self):
         """Alterna entre tema claro y oscuro."""

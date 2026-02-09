@@ -1,6 +1,6 @@
 """Página de inicio con selector visual de secciones."""
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QLabel, QPushButton, QScrollArea, QSizePolicy
-from PySide6.QtCore import Qt, Signal
+from PySide6.QtCore import Qt, Signal, QEvent
 from PySide6.QtGui import QIcon
 from app.views.widgets import CardWidget
 
@@ -80,7 +80,7 @@ class PageInicio(QWidget):
     
     def crear_titulo(self, layout_padre: QVBoxLayout):
         """Crea el título principal de la página."""
-        self.titulo = QLabel("Gestión de torneos")
+        self.titulo = QLabel(self.tr("Gestión de torneos"))
         self.titulo.setObjectName("homeTitleLabel")
         self.titulo.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout_padre.addWidget(self.titulo)
@@ -95,18 +95,18 @@ class PageInicio(QWidget):
         self.grid_layout.setColumnStretch(1, 1)
         
         # Información de botones: (titulo, descripcion, icono_unicode)
-        botones_info = [
-            ("Equipos", "Gestiona los equipos del torneo", "⚽"),
-            ("Participantes", "Administra jugadores y árbitros", "👥"),
-            ("Calendario / Partidos", "Programa y gestiona los partidos", "📅"),
-            ("Cuadro de eliminatorias", "Visualiza el cuadro del torneo", "🏆"),
-            ("Ayuda", "Consulta la documentación", "❓"),
-            ("Créditos", "Información del proyecto", "ℹ️")
+        self.botones_info = [
+            (self.tr("Equipos"), self.tr("Gestiona los equipos del torneo"), "⚽"),
+            (self.tr("Participantes"), self.tr("Administra jugadores y árbitros"), "👥"),
+            (self.tr("Calendario / Partidos"), self.tr("Programa y gestiona los partidos"), "📅"),
+            (self.tr("Cuadro de eliminatorias"), self.tr("Visualiza el cuadro del torneo"), "🏆"),
+            (self.tr("Ayuda"), self.tr("Consulta la documentación"), "❓"),
+            (self.tr("Créditos"), self.tr("Información del proyecto"), "ℹ️")
         ]
         
         # Crear tarjetas
         self.cards = []
-        for idx, (titulo, descripcion, icono) in enumerate(botones_info):
+        for idx, (titulo, descripcion, icono) in enumerate(self.botones_info):
             card = CardWidget(titulo, descripcion, icono, theme="light")
             card.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
             card.setMinimumHeight(140)
@@ -295,3 +295,27 @@ class PageInicio(QWidget):
         if boton:
             self._aplicar_imagen_fondo(boton, ruta_imagen)
             self.imagenes_fondo[nombre_boton] = ruta_imagen
+    
+    def changeEvent(self, event):
+        """Maneja eventos de cambio, incluyendo cambio de idioma."""
+        if event.type() == QEvent.Type.LanguageChange:
+            self.retranslate_ui()
+        super().changeEvent(event)
+    
+    def retranslate_ui(self):
+        """Actualiza todos los textos traducibles de la interfaz."""
+        self.titulo.setText(self.tr("Gestión de torneos"))
+        
+        # Actualizar textos de las tarjetas
+        traducciones = [
+            (self.tr("Equipos"), self.tr("Gestiona los equipos del torneo")),
+            (self.tr("Participantes"), self.tr("Administra jugadores y árbitros")),
+            (self.tr("Calendario / Partidos"), self.tr("Programa y gestiona los partidos")),
+            (self.tr("Cuadro de eliminatorias"), self.tr("Visualiza el cuadro del torneo")),
+            (self.tr("Ayuda"), self.tr("Consulta la documentación")),
+            (self.tr("Créditos"), self.tr("Información del proyecto"))
+        ]
+        
+        for i, (titulo, descripcion) in enumerate(traducciones):
+            if i < len(self.cards):
+                self.cards[i].set_texts(titulo, descripcion)

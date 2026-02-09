@@ -7,6 +7,7 @@ block_cipher = None
 datas = [
     ('app/resources', 'app/resources'),
     ('app/views/ui', 'app/views/ui'),
+    ('translations', 'translations'),  # Incluir archivos de traducción .qm
 ]
 
 # Incluir data/ si existe (para distribuir con BD pre-poblada)

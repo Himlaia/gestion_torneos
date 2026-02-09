@@ -138,6 +138,19 @@ class CardWidget(QWidget):
         self._update_desc_style()
         self.update()
     
+    def set_texts(self, titulo: str, descripcion: str):
+        """
+        Actualiza los textos de la tarjeta.
+        
+        Args:
+            titulo: Nuevo texto del título
+            descripcion: Nuevo texto de la descripción
+        """
+        self.titulo_text = titulo
+        self.descripcion_text = descripcion
+        self.title_label.setText(titulo)
+        self.desc_label.setText(descripcion)
+    
     def paintEvent(self, event):
         """Dibuja la tarjeta con bordes redondeados y clipping real."""
         painter = QPainter(self)

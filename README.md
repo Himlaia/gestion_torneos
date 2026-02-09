@@ -17,8 +17,9 @@ Aplicación de escritorio profesional desarrollada con **PySide6** y **SQLite** 
 - [Ejecución](#-ejecución)
 - [Arquitectura del Proyecto](#-arquitectura-del-proyecto)
 - [Base de Datos](#-base-de-datos)
+- [Componente Reutilizable](#-componente-reutilizable-digitalclock)
+- [Distribución y Entregables](#-distribución-y-entregables)
 - [Documentación Técnica](#-documentación-técnica)
-- [Distribución](#-distribución)
 
 ---
 
@@ -417,43 +418,180 @@ QSSService.toggle_theme(main_window)
 
 ---
 
-## 📦 Distribución
+## 🧩 Componente Reutilizable: DigitalClock
 
-### Generar Ejecutable con PyInstaller
+Este proyecto incluye un **componente reutilizable completamente independiente** desarrollado como parte de la aplicación.
 
-#### Windows
+### Descripción del Componente
+
+**DigitalClock** es un widget de PySide6 que hereda de `QLCDNumber` y proporciona:
+
+- ⏰ **Modo Reloj**: Muestra la hora actual con formato 12h/24h
+- ⏱️ **Modo Cronómetro Ascendente**: Stopwatch
+- ⏲️ **Modo Cronómetro Descendente**: Countdown con notificaciones
+- 🔔 **Sistema de Alarmas**: Configurables con popups
+- 🎨 **Completamente Personalizable**: Usa Qt Properties
+- 📦 **Sin Dependencias Externas**: Solo requiere PySide6
+
+### Ubicación del Código
+
+```
+torneo_futbol/app/views/widgets/
+├── digital_clock.py          # Código fuente del componente
+└── README.md                 # Documentación completa del componente
+```
+
+### Uso Básico
+
+```python
+from app.views.widgets.digital_clock import DigitalClock, ClockMode
+
+# Crear reloj
+clock = DigitalClock()
+clock.mode = ClockMode.CLOCK
+clock.is24Hour = True
+
+# Configurar alarma
+clock.alarmEnabled = True
+clock.alarmTime = QTime(14, 30, 0)
+clock.alarmTriggered.connect(lambda msg: print(f"Alarma: {msg}"))
+
+# Usar como cronómetro
+clock.mode = ClockMode.TIMER
+clock.setCountdownTime(hours=0, minutes=5, seconds=0)
+clock.start()
+```
+
+### Demo Standalone
+
+El proyecto incluye una **aplicación demo independiente** (`demo_digital_clock.py`) que muestra todas las capacidades del componente de forma interactiva.
+
+Para más detalles, consulta la documentación completa en:
+📄 `torneo_futbol/app/views/widgets/README.md`
+
+---
+
+## 📦 Distribución y Entregables
+
+### Entregables del Proyecto
+
+Este proyecto genera **DOS ejecutables** que deben entregarse:
+
+1. **TorneoFutbol.exe** - Aplicación completa de gestión de torneos
+2. **DigitalClock_Demo.exe** - Demo standalone del componente reutilizable
+
+### 🚀 Generación Automática de Ejecutables
+
+#### Opción 1: Generar Ambos Ejecutables (Recomendado)
+
+Desde PowerShell en el directorio raíz del proyecto:
+
+```powershell
+cd torneo_futbol
+.\scripts\build_all.ps1
+```
+
+Este script:
+- ✅ Compila `TorneoFutbol.exe` (aplicación completa)
+- ✅ Compila `DigitalClock_Demo.exe` (demo del componente)
+- ✅ Crea carpeta `entrega_final/` con todo listo para entregar
+- ✅ Incluye código fuente del componente y README
+
+**Resultado:**
+```
+entrega_final/
+├── TorneoFutbol.exe              # Ejecutable aplicación completa
+├── DigitalClock_Demo.exe         # Ejecutable demo componente
+├── README.md                     # Instrucciones
+└── componente_codigo_fuente/
+    ├── digital_clock.py          # Código fuente del componente
+    └── README.md                 # Documentación del componente
+```
+
+#### Opción 2: Compilar Solo la Aplicación Completa
+
+```powershell
+.\scripts\build.ps1
+```
+
+Genera: `dist/TorneoFutbol.exe`
+
+#### Opción 3: Compilar Solo el Demo del Componente
+
+```powershell
+.\scripts\build_demo.ps1
+```
+
+Genera: `dist/DigitalClock_Demo.exe`
+
+### 📋 Requisitos para Compilar
 
 ```bash
-pyinstaller --name="TorneoFutbol" \
-            --windowed \
-            --onefile \
-            --icon=app/resources/img/icon.ico \
-            --add-data="app/resources;app/resources" \
-            --add-data="data;data" \
-            main.py
+# Instalar PyInstaller (si no está instalado)
+pip install pyinstaller
+
+# Verificar instalación
+pyinstaller --version
 ```
 
-#### Linux
+### 🎯 Estructura de Entrega para Evaluación
+
+Para cumplir con los requisitos de entrega:
+
+1. Ejecuta `.\scripts\build_all.ps1`
+2. Comprime la carpeta `entrega_final/` en un archivo ZIP
+3. El ZIP contendrá:
+   - ✅ Proyecto completo como `.exe`
+   - ✅ Componente reutilizable como `.exe` demo
+   - ✅ Código fuente del componente (`.py`)
+   - ✅ Documentación completa (README)
+   - ✅ Todo el código fuente del proyecto MVC
+
+### ⚙️ Archivos de Configuración de PyInstaller
+
+El proyecto incluye archivos `.spec` preconfigurados:
+
+- `torneo_futbol.spec` - Configuración para aplicación completa
+- `demo_digital_clock.spec` - Configuración para demo del componente
+
+### 🖥️ Ejecutar los Archivos .exe
+
+Ambos ejecutables son **completamente independientes** y funcionan con doble clic:
+
+- **TorneoFutbol.exe**: Abre la aplicación completa de gestión de torneos
+- **DigitalClock_Demo.exe**: Abre la demo interactiva del componente
+
+**Características:**
+- ✅ Sin instalación necesaria
+- ✅ Sin configuración previa
+- ✅ Sin necesidad de tener Python instalado
+- ✅ Portables (se pueden copiar a cualquier PC Windows)
+
+### 🔧 Compilación Manual (Avanzada)
+
+Si prefieres compilar manualmente:
 
 ```bash
-pyinstaller --name="torneo-futbol" \
-            --windowed \
-            --onefile \
-            --add-data="app/resources:app/resources" \
-            --add-data="data:data" \
-            main.py
+# Aplicación completa
+pyinstaller --clean torneo_futbol.spec
+
+# Demo del componente
+pyinstaller --clean demo_digital_clock.spec
 ```
 
-### Estructura del Ejecutable
+### 📐 Tamaños Aproximados
 
-```
-TorneoFutbol/
-├── TorneoFutbol.exe        # Ejecutable principal
-├── data/                   # Datos (se crea automáticamente)
-│   ├── torneo.db
-│   └── escudos/
-└── _internal/              # Dependencias embebidas (PyInstaller)
-```
+- **TorneoFutbol.exe**: ~50-70 MB
+- **DigitalClock_Demo.exe**: ~40-60 MB
+
+*Los tamaños varían según la versión de PySide6 y el sistema operativo.*
+
+### ⚠️ Notas Importantes
+
+1. **Primera ejecución**: Puede tardar unos segundos en iniciar mientras se descomprimen las librerías
+2. **Antivirus**: Algunos antivirus pueden marcar los ejecutables como sospechosos (falso positivo). Esto es normal con PyInstaller
+3. **Base de datos**: La aplicación crea automáticamente la base de datos `data/torneo.db` en la primera ejecución
+4. **Escudos**: La carpeta `data/escudos/` se crea automáticamente para almacenar logos de equipos
 
 ---
 
