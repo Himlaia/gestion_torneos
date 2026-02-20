@@ -422,6 +422,10 @@
             <source>Créditos</source>
             <translation>Credits</translation>
         </message>
+        <message>
+            <source>Informes</source>
+            <translation>Reports</translation>
+        </message>
     </context>
     <context>
         <name>PageMatches</name>
@@ -890,6 +894,14 @@
             <source>Créditos</source>
             <translation>Credits</translation>
         </message>
+        <message>
+            <source>Informes</source>
+            <translation>Reports</translation>
+        </message>
+        <message>
+            <source>Genera informes PDF del torneo</source>
+            <translation>Generate tournament PDF reports</translation>
+        </message>
     </context>
     <context>
         <name>PageGestionEquipos</name>
@@ -1316,4 +1328,91 @@
             <translation>No referee</translation>
         </message>
     <message><source>Cancelado</source><translation>Cancelled</translation></message></context>
-<context><name>PageCuadroEliminatorias</name><message><source>Cuadro de eliminatorias</source><translation>Knockout Bracket</translation></message><message><source>Randomizar octavos</source><translation>Randomize Round of 16</translation></message><message><source>Guardar emparejamientos</source><translation>Save Pairings</translation></message><message><source>Exportar resultados (CSV)</source><translation>Export Results (CSV)</translation></message></context><context><name>BracketWidget</name><message><source>Octavos</source><translation>Round of 16</translation></message><message><source>Cuartos</source><translation>Quarterfinals</translation></message><message><source>Semifinal</source><translation>Semifinal</translation></message><message><source>Finalista</source><translation>Finalist</translation></message></context></TS>
+<context><name>PageCuadroEliminatorias</name><message><source>Cuadro de eliminatorias</source><translation>Knockout Bracket</translation></message><message><source>Randomizar octavos</source><translation>Randomize Round of 16</translation></message><message><source>Guardar emparejamientos</source><translation>Save Pairings</translation></message><message><source>Exportar resultados (CSV)</source><translation>Export Results (CSV)</translation></message></context><context><name>BracketWidget</name><message><source>Octavos</source><translation>Round of 16</translation></message><message><source>Cuartos</source><translation>Quarterfinals</translation></message><message><source>Semifinal</source><translation>Semifinal</translation></message><message><source>Finalista</source><translation>Finalist</translation></message></context>
+    <context>
+        <name>PageCredits</name>
+        <message>
+            <source>Créditos</source>
+            <translation>Credits</translation>
+        </message>
+        <message>
+            <source>Aplicación de Gestión de Torneo de Fútbol v{version}</source>
+            <translation>Football Tournament Management App v{version}</translation>
+        </message>
+        <message>
+            <source>Creado por Martina Valdivia Figueroa</source>
+            <translation>Created by Martina Valdivia Figueroa</translation>
+        </message>
+    </context>
+    <context>
+        <name>PageReports</name>
+        <message>
+            <source>Informes</source>
+            <translation>Reports</translation>
+        </message>
+        <message>
+            <source>Generador de Informes PDF</source>
+            <translation>PDF Report Generator</translation>
+        </message>
+        <message>
+            <source>Tipo de informe:</source>
+            <translation>Report type:</translation>
+        </message>
+        <message>
+            <source>Equipos y Jugadores</source>
+            <translation>Teams and Players</translation>
+        </message>
+        <message>
+            <source>Partidos y Resultados</source>
+            <translation>Matches and Results</translation>
+        </message>
+        <message>
+            <source>Clasificacion y Eliminatorias</source>
+            <translation>Standings and Knockouts</translation>
+        </message>
+        <message>
+            <source>Filtrar por equipo:</source>
+            <translation>Filter by team:</translation>
+        </message>
+        <message>
+            <source>Filtrar por fase:</source>
+            <translation>Filter by phase:</translation>
+        </message>
+        <message>
+            <source>Generar PDF</source>
+            <translation>Generate PDF</translation>
+        </message>
+        <message>
+            <source>Guardar como...</source>
+            <translation>Save as...</translation>
+        </message>
+        <message>
+            <source>Todos los equipos</source>
+            <translation>All teams</translation>
+        </message>
+        <message>
+            <source>Todas las fases</source>
+            <translation>All phases</translation>
+        </message>
+        <message>
+            <source>Octavos de Final</source>
+            <translation>Round of 16</translation>
+        </message>
+        <message>
+            <source>Cuartos de Final</source>
+            <translation>Quarterfinals</translation>
+        </message>
+        <message>
+            <source>Semifinales</source>
+            <translation>Semifinals</translation>
+        </message>
+        <message>
+            <source>Final</source>
+            <translation>Final</translation>
+        </message>
+        <message>
+            <source>Ultimo PDF: </source>
+            <translation>Last PDF: </translation>
+        </message>
+    </context>
+</TS>

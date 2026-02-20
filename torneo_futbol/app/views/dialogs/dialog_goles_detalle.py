@@ -164,19 +164,19 @@ class DialogGolesDetalle(QDialog):
             btn_eliminar.setToolTip("Eliminar este gol")
             btn_eliminar.setStyleSheet("""
                 QPushButton#btnEliminarGol {
-                    background-color: transparent;
-                    color: #dc3545;
-                    border: 1px solid rgba(220, 53, 69, 0.3);
+                    background-color: #c0392b;
+                    color: #ffffff;
+                    border: 1px solid #a93226;
                     border-radius: 6px;
-                    font-size: 16px;
-                    padding: 4px;
+                    font-size: 14px;
+                    padding: 2px;
                 }
                 QPushButton#btnEliminarGol:hover {
-                    background-color: rgba(220, 53, 69, 0.1);
-                    border: 1px solid rgba(220, 53, 69, 0.5);
+                    background-color: #e74c3c;
+                    border: 1px solid #c0392b;
                 }
                 QPushButton#btnEliminarGol:pressed {
-                    background-color: rgba(220, 53, 69, 0.2);
+                    background-color: #922b21;
                 }
             """)
             btn_eliminar.clicked.connect(lambda checked, row=i: self.eliminar_gol(row))

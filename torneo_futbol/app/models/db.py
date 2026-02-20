@@ -1,8 +1,11 @@
 """Gestión de la conexión a la base de datos."""
 import sqlite3
-import sys
 from pathlib import Path
 from typing import Optional
+
+# Importar rutas centralizadas desde config (esto también ejecuta la
+# lógica de copia de datos empaquetados en modo frozen)
+from app.config import DB_PATH
 
 
 class DbError(Exception):
@@ -13,28 +16,11 @@ class DbError(Exception):
 def get_db_path() -> Path:
     """
     Obtiene la ruta absoluta al archivo de base de datos.
-    Crea el directorio data si no existe.
-    
-    Si la aplicación está empaquetada (PyInstaller), guarda la BD
-    en el directorio del ejecutable. Si está en desarrollo, usa
-    la carpeta data/ del proyecto.
-    
+
     Returns:
         Path: Ruta al archivo torneo.db
     """
-    # Detectar si estamos en un ejecutable empaquetado
-    if getattr(sys, 'frozen', False):
-        # Estamos en un ejecutable empaquetado
-        # sys.executable es la ruta al .exe
-        root_dir = Path(sys.executable).parent
-    else:
-        # Estamos en desarrollo
-        root_dir = Path(__file__).resolve().parent.parent.parent
-    
-    data_dir = root_dir / "data"
-    data_dir.mkdir(exist_ok=True)
-    
-    return data_dir / "torneo.db"
+    return DB_PATH
 
 
 _db_path_printed = False

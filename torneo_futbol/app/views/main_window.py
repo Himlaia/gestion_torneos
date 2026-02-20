@@ -11,7 +11,7 @@ from app.constants import (
     APP_TITLE, WINDOW_WIDTH, WINDOW_HEIGHT,
     WINDOW_MIN_WIDTH, WINDOW_MIN_HEIGHT,
     PAGE_HOME, PAGE_TEAMS, PAGE_PARTICIPANTS, PAGE_MATCHES,
-    PAGE_BRACKET, PAGE_TOOLS, PAGE_HELP, PAGE_CREDITS, THEME_LIGHT
+    PAGE_BRACKET, PAGE_REPORTS, PAGE_TOOLS, PAGE_HELP, PAGE_CREDITS, THEME_LIGHT
 )
 from app.config import AVAILABLE_LANGUAGES, TRANSLATIONS_DIR
 from app.controllers.navigation_controller import NavigationController
@@ -19,6 +19,7 @@ from app.controllers.teams_controller import ControladorGestionEquipos
 from app.controllers.participants_controller import ControladorGestionParticipantes
 from app.controllers.matches_controller import ControladorCalendarioPartidos
 from app.controllers.bracket_controller import ControladorCuadroEliminatorias
+from app.controllers.reports_controller import ControladorReportes
 from app.services.qss_service import qss_service
 from app.views.widgets.background_widget import BackgroundWidget
 from app.views.page_home import PageInicio
@@ -26,6 +27,7 @@ from app.views.page_teams import PageGestionEquipos
 from app.views.page_participants import PageParticipants
 from app.views.page_matches import PageMatches
 from app.views.page_bracket import PageBracket
+from app.views.page_reports import PageReports
 from app.views.page_tools import PageTools
 from app.views.page_help import PageHelp
 from app.views.page_credits import PageCredits
@@ -76,6 +78,7 @@ class MainWindow(QMainWindow):
         self.page_participantes = PageParticipants()
         self.page_matches = PageMatches()  # ✅ GUARDADA COMO ATRIBUTO
         self.page_bracket = PageBracket()  # ✅ GUARDADA COMO ATRIBUTO
+        self.page_reports = PageReports()
         self.page_tools = PageTools()
         self.page_help = PageHelp()
         self.page_credits = PageCredits()
@@ -86,9 +89,10 @@ class MainWindow(QMainWindow):
         self.stacked_widget.addWidget(self.page_participantes)  # 2 - PARTICIPANTS
         self.stacked_widget.addWidget(self.page_matches)        # 3 - MATCHES
         self.stacked_widget.addWidget(self.page_bracket)        # 4 - BRACKET
-        self.stacked_widget.addWidget(self.page_tools)          # 5 - TOOLS
-        self.stacked_widget.addWidget(self.page_help)           # 6 - HELP
-        self.stacked_widget.addWidget(self.page_credits)        # 7 - CREDITS
+        self.stacked_widget.addWidget(self.page_reports)        # 5 - REPORTS
+        self.stacked_widget.addWidget(self.page_tools)          # 6 - TOOLS
+        self.stacked_widget.addWidget(self.page_help)           # 7 - HELP
+        self.stacked_widget.addWidget(self.page_credits)        # 8 - CREDITS
         
         # ✅ Inicializar controladores
         print("[MAIN WINDOW] Inicializando controladores...")
@@ -113,13 +117,18 @@ class MainWindow(QMainWindow):
             print(f"[MAIN WINDOW WARNING] No se pudo inicializar controlador bracket: {e}")
             self.controlador_bracket = None
         
+        # Inicializar controlador de reportes
+        print("[MAIN WINDOW] Inicializando ControladorReportes...")
+        self.controlador_reportes = ControladorReportes(self.page_reports)
+        print("[MAIN WINDOW] ControladorReportes inicializado correctamente")
+
         # Conectar señales de navegación de PageInicio
         self.page_inicio.ir_a_equipos_signal.connect(lambda: self.navigate_to_page(PAGE_TEAMS))
         self.page_inicio.ir_a_participantes_signal.connect(lambda: self.navigate_to_page(PAGE_PARTICIPANTS))
         self.page_inicio.ir_a_partidos_signal.connect(lambda: self.navigate_to_page(PAGE_MATCHES))
         self.page_inicio.ir_a_cuadro_signal.connect(lambda: self.navigate_to_page(PAGE_BRACKET))
+        self.page_inicio.ir_a_reportes_signal.connect(lambda: self.navigate_to_page(PAGE_REPORTS))
         self.page_inicio.ir_a_ayuda_signal.connect(lambda: self.navigate_to_page(PAGE_HELP))
-        self.page_inicio.ir_a_creditos_signal.connect(lambda: self.navigate_to_page(PAGE_CREDITS))
         
         # Mostrar página de inicio al cargar
         self.stacked_widget.setCurrentIndex(PAGE_HOME)
@@ -159,10 +168,14 @@ class MainWindow(QMainWindow):
         action_bracket = QAction(self.tr("Cuadro de eliminatorias"), self)
         action_bracket.triggered.connect(lambda: self.navigate_to_page(PAGE_BRACKET))
         torneo_menu.addAction(action_bracket)
-        
+
         # Menú Herramientas (independiente)
         tools_menu = menubar.addMenu(self.tr("Herramientas"))
-        
+
+        action_reports = QAction(self.tr("Informes"), self)
+        action_reports.triggered.connect(lambda: self.navigate_to_page(PAGE_REPORTS))
+        tools_menu.addAction(action_reports)
+
         action_tools = QAction(self.tr("Reloj digital"), self)
         action_tools.triggered.connect(lambda: self.navigate_to_page(PAGE_TOOLS))
         tools_menu.addAction(action_tools)
@@ -289,3 +302,5 @@ class MainWindow(QMainWindow):
         # Recargar datos cuando se navega a la página de equipos
         if index == PAGE_TEAMS:
             self.controlador_equipos.cargar_tabla()
+        elif index == PAGE_REPORTS:
+            self.controlador_reportes.cargar_filtros()

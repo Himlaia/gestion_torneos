@@ -233,9 +233,78 @@ class ControladorCuadroEliminatorias:
         
         # Ordenar cuartos nuevamente
         cuadro_data["Cuartos"].sort(key=lambda p: p.get("slot", 0))
-        
-        # TODO: Repetir lógica para cuartos -> semifinal y semifinal -> final si es necesario
-        
+
+        # Procesar cuartos -> semifinal
+        cuartos = cuadro_data.get("Cuartos", [])
+        semifinal_existentes = cuadro_data.get("Semifinal", [])
+        slots_semi_existentes = {p.get('slot'): p for p in semifinal_existentes}
+
+        emparejamientos_semi = [
+            (1, 1, 2),  # Semifinal 1: Cuartos 1 vs Cuartos 2
+            (2, 3, 4),  # Semifinal 2: Cuartos 3 vs Cuartos 4
+        ]
+
+        for slot_semi, slot_cuartos_1, slot_cuartos_2 in emparejamientos_semi:
+            if slot_semi in slots_semi_existentes:
+                continue
+
+            partido_1 = next((p for p in cuartos if p.get('slot') == slot_cuartos_1), None)
+            partido_2 = next((p for p in cuartos if p.get('slot') == slot_cuartos_2), None)
+
+            ganador_1_id = partido_1.get('ganador_equipo_id') if partido_1 else None
+            ganador_2_id = partido_2.get('ganador_equipo_id') if partido_2 else None
+
+            if ganador_1_id or ganador_2_id:
+                local_nombre = self._obtener_nombre_equipo(ganador_1_id) if ganador_1_id else None
+                visitante_nombre = self._obtener_nombre_equipo(ganador_2_id) if ganador_2_id else None
+
+                partido_virtual = {
+                    'id': None,
+                    'eliminatoria': FASE_SEMIFINAL,
+                    'slot': slot_semi,
+                    'equipo_local_id': ganador_1_id,
+                    'equipo_visitante_id': ganador_2_id,
+                    'local_nombre': local_nombre,
+                    'visitante_nombre': visitante_nombre,
+                    'estado': 'Pendiente',
+                    'ganador_equipo_id': None,
+                    '_virtual': True
+                }
+                cuadro_data.setdefault("Semifinal", []).append(partido_virtual)
+
+        if "Semifinal" in cuadro_data:
+            cuadro_data["Semifinal"].sort(key=lambda p: p.get("slot", 0))
+
+        # Procesar semifinal -> final
+        semifinales = cuadro_data.get("Semifinal", [])
+        final_existentes = cuadro_data.get("Final", [])
+        slots_final_existentes = {p.get('slot'): p for p in final_existentes}
+
+        if 1 not in slots_final_existentes:
+            partido_s1 = next((p for p in semifinales if p.get('slot') == 1), None)
+            partido_s2 = next((p for p in semifinales if p.get('slot') == 2), None)
+
+            ganador_s1 = partido_s1.get('ganador_equipo_id') if partido_s1 else None
+            ganador_s2 = partido_s2.get('ganador_equipo_id') if partido_s2 else None
+
+            if ganador_s1 or ganador_s2:
+                local_nombre = self._obtener_nombre_equipo(ganador_s1) if ganador_s1 else None
+                visitante_nombre = self._obtener_nombre_equipo(ganador_s2) if ganador_s2 else None
+
+                partido_virtual = {
+                    'id': None,
+                    'eliminatoria': FASE_FINAL,
+                    'slot': 1,
+                    'equipo_local_id': ganador_s1,
+                    'equipo_visitante_id': ganador_s2,
+                    'local_nombre': local_nombre,
+                    'visitante_nombre': visitante_nombre,
+                    'estado': 'Pendiente',
+                    'ganador_equipo_id': None,
+                    '_virtual': True
+                }
+                cuadro_data.setdefault("Final", []).append(partido_virtual)
+
         return cuadro_data
     
     def _obtener_nombre_equipo(self, equipo_id: int) -> str:

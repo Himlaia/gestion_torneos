@@ -169,7 +169,7 @@ QComboBox::down-arrow {
 }
 
 QComboBox QAbstractItemView {
-    background-color: rgba(50, 55, 60, 0.98);
+    background-color: #3a3f44;
     color: #e0e0e0;
     border: 2px solid #16a085;
     border-radius: 5px;
@@ -180,14 +180,16 @@ QComboBox QAbstractItemView {
 }
 
 QComboBox QAbstractItemView::item {
+    background-color: #3a3f44;
+    color: #e0e0e0;
     padding: 6px 10px;
     min-height: 24px;
     border: none;
 }
 
 QComboBox QAbstractItemView::item:hover {
-    background-color: rgba(22, 160, 133, 0.25);
-    color: #e0e0e0;
+    background-color: #4a5a55;
+    color: #ffffff;
 }
 
 QComboBox QAbstractItemView::item:selected {
@@ -197,7 +199,7 @@ QComboBox QAbstractItemView::item:selected {
 
 /* QCompleter popup (autocompletado) */
 QCompleter::popup, QCompleter QAbstractItemView {
-    background-color: rgba(50, 55, 60, 0.98);
+    background-color: #3a3f44;
     color: #e0e0e0;
     border: 2px solid #16a085;
     border-radius: 5px;
@@ -207,13 +209,15 @@ QCompleter::popup, QCompleter QAbstractItemView {
 }
 
 QCompleter::popup::item, QCompleter QAbstractItemView::item {
+    background-color: #3a3f44;
+    color: #e0e0e0;
     padding: 6px 10px;
     min-height: 24px;
 }
 
 QCompleter::popup::item:hover, QCompleter QAbstractItemView::item:hover {
-    background-color: rgba(22, 160, 133, 0.25);
-    color: #e0e0e0;
+    background-color: #4a5a55;
+    color: #ffffff;
 }
 
 QCompleter::popup::item:selected, QCompleter QAbstractItemView::item:selected {
@@ -233,13 +237,16 @@ QComboBox#ComboAccent:focus {
 }
 
 QComboBox#ComboAccent QAbstractItemView {
-    background-color: #3e3e3e;
+    background-color: #3a3f44;
+    color: #e0e0e0;
     border: 2px solid #16a085;
     selection-background-color: #16a085;
     selection-color: #ffffff;
 }
 
 QComboBox#ComboAccent QAbstractItemView::item {
+    background-color: #3a3f44;
+    color: #e0e0e0;
     padding: 6px 10px;
     min-height: 24px;
 }
@@ -250,8 +257,8 @@ QComboBox#ComboAccent QAbstractItemView::item:selected {
 }
 
 QComboBox#ComboAccent QAbstractItemView::item:hover {
-    background-color: rgba(22, 160, 133, 0.20);
-    color: #e0e0e0;
+    background-color: #4a5a55;
+    color: #ffffff;
 }
 
 /* ===== QTableView / QTableWidget ===== */

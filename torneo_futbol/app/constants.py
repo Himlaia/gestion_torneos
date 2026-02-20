@@ -2,7 +2,7 @@
 
 # Títulos de la aplicación
 APP_TITLE = "Gestión de Torneo de Fútbol"
-APP_VERSION = "1.0.0"
+APP_VERSION = "1.1.0"
 
 # Dimensiones de la ventana
 WINDOW_WIDTH = 1000
@@ -16,9 +16,10 @@ PAGE_TEAMS = 1
 PAGE_PARTICIPANTS = 2
 PAGE_MATCHES = 3
 PAGE_BRACKET = 4
-PAGE_TOOLS = 5
-PAGE_HELP = 6
-PAGE_CREDITS = 7
+PAGE_REPORTS = 5
+PAGE_TOOLS = 6
+PAGE_HELP = 7
+PAGE_CREDITS = 8
 
 # Nombres de páginas
 PAGE_NAMES = {
@@ -27,6 +28,7 @@ PAGE_NAMES = {
     PAGE_PARTICIPANTS: "Gestión de Participantes",
     PAGE_MATCHES: "Calendario / Partidos",
     PAGE_BRACKET: "Cuadro de Eliminatorias",
+    PAGE_REPORTS: "Informes",
     PAGE_TOOLS: "Herramientas",
     PAGE_HELP: "Ayuda",
     PAGE_CREDITS: "Créditos"

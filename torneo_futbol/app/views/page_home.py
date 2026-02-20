@@ -13,8 +13,8 @@ class PageInicio(QWidget):
     ir_a_participantes_signal = Signal()
     ir_a_partidos_signal = Signal()
     ir_a_cuadro_signal = Signal()
+    ir_a_reportes_signal = Signal()
     ir_a_ayuda_signal = Signal()
-    ir_a_creditos_signal = Signal()
     
     def __init__(self):
         """Inicializa la página de inicio."""
@@ -100,8 +100,8 @@ class PageInicio(QWidget):
             (self.tr("Participantes"), self.tr("Administra jugadores y árbitros"), "👥"),
             (self.tr("Calendario / Partidos"), self.tr("Programa y gestiona los partidos"), "📅"),
             (self.tr("Cuadro de eliminatorias"), self.tr("Visualiza el cuadro del torneo"), "🏆"),
-            (self.tr("Ayuda"), self.tr("Consulta la documentación"), "❓"),
-            (self.tr("Créditos"), self.tr("Información del proyecto"), "ℹ️")
+            (self.tr("Informes"), self.tr("Genera informes PDF del torneo"), "📊"),
+            (self.tr("Ayuda"), self.tr("Consulta la documentación"), "❓")
         ]
         
         # Crear tarjetas
@@ -120,8 +120,8 @@ class PageInicio(QWidget):
         self.boton_participantes = self.cards[1]
         self.boton_partidos = self.cards[2]
         self.boton_cuadro = self.cards[3]
-        self.boton_ayuda = self.cards[4]
-        self.boton_creditos = self.cards[5]
+        self.boton_reportes = self.cards[4]
+        self.boton_ayuda = self.cards[5]
         
         layout_padre.addLayout(self.grid_layout)
     
@@ -198,8 +198,8 @@ class PageInicio(QWidget):
         self.boton_participantes.clicked.connect(self.ir_a_participantes_signal.emit)
         self.boton_partidos.clicked.connect(self.ir_a_partidos_signal.emit)
         self.boton_cuadro.clicked.connect(self.ir_a_cuadro_signal.emit)
+        self.boton_reportes.clicked.connect(self.ir_a_reportes_signal.emit)
         self.boton_ayuda.clicked.connect(self.ir_a_ayuda_signal.emit)
-        self.boton_creditos.clicked.connect(self.ir_a_creditos_signal.emit)
     
     def set_imagenes(self, imagenes: dict[str, str]):
         """
@@ -217,10 +217,10 @@ class PageInicio(QWidget):
             "participantes": self.boton_participantes,
             "partidos": self.boton_partidos,
             "cuadro": self.boton_cuadro,
-            "ayuda": self.boton_ayuda,
-            "creditos": self.boton_creditos
+            "reportes": self.boton_reportes,
+            "ayuda": self.boton_ayuda
         }
-        
+
         # Aplicar imagen de fondo a cada botón
         for clave, boton in mapeo_botones.items():
             ruta_imagen = imagenes.get(clave)
@@ -287,10 +287,10 @@ class PageInicio(QWidget):
             "participantes": self.boton_participantes,
             "partidos": self.boton_partidos,
             "cuadro": self.boton_cuadro,
-            "ayuda": self.boton_ayuda,
-            "creditos": self.boton_creditos
+            "reportes": self.boton_reportes,
+            "ayuda": self.boton_ayuda
         }
-        
+
         boton = mapeo_botones.get(nombre_boton)
         if boton:
             self._aplicar_imagen_fondo(boton, ruta_imagen)
@@ -312,8 +312,8 @@ class PageInicio(QWidget):
             (self.tr("Participantes"), self.tr("Administra jugadores y árbitros")),
             (self.tr("Calendario / Partidos"), self.tr("Programa y gestiona los partidos")),
             (self.tr("Cuadro de eliminatorias"), self.tr("Visualiza el cuadro del torneo")),
-            (self.tr("Ayuda"), self.tr("Consulta la documentación")),
-            (self.tr("Créditos"), self.tr("Información del proyecto"))
+            (self.tr("Informes"), self.tr("Genera informes PDF del torneo")),
+            (self.tr("Ayuda"), self.tr("Consulta la documentación"))
         ]
         
         for i, (titulo, descripcion) in enumerate(traducciones):

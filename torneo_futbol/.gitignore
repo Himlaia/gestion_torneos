@@ -1,0 +1,43 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+*.egg
+dist/
+build/
+*.spec
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# PyInstaller
+*.manifest
+*.log
+
+# OS
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Database backups
+data/*_backup_*.db
+
+# Generated reports
+reports/*.pdf
+
+# Translations (compiled)
+translations/*.qm
+
+# Misc artifacts
+nul
+=*

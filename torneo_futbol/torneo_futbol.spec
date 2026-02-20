@@ -8,6 +8,8 @@ datas = [
     ('app/resources', 'app/resources'),
     ('app/views/ui', 'app/views/ui'),
     ('translations', 'translations'),  # Incluir archivos de traducción .qm
+    ('reports/templates', 'reports/templates'),
+    ('reports/compiled', 'reports/compiled'),
 ]
 
 # Incluir data/ si existe (para distribuir con BD pre-poblada)
@@ -26,6 +28,7 @@ a = Analysis(
         'PySide6.QtWidgets',
         'PySide6.QtUiTools',
         'sqlite3',
+        'fpdf',
     ],
     hookspath=[],
     hooksconfig={},

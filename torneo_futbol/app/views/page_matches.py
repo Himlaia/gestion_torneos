@@ -1279,6 +1279,13 @@ class PageCalendarioPartidos(QWidget):
         self.penaltis_local.setValue(int(datos.get('penaltis_local', 0)))
         self.penaltis_visitante.setValue(int(datos.get('penaltis_visitante', 0)))
     
+    def _safe_int(self, text: str, default: int = 0) -> int:
+        """Convierte texto a entero de forma segura."""
+        try:
+            return int(text) if text else default
+        except (ValueError, TypeError):
+            return default
+
     def get_datos_resultado(self) -> dict:
         """Obtiene los datos del resultado."""
         # Obtener estadísticas de la tabla
@@ -1287,17 +1294,17 @@ class PageCalendarioPartidos(QWidget):
             # Obtener participante_id desde el UserRole del item de jugador
             item_jugador = self.tabla_stats_partido.item(fila, 0)
             participante_id = item_jugador.data(Qt.ItemDataRole.UserRole) if item_jugador else None
-            
+
             stat = {
                 'participante_id': participante_id,
                 'jugador': self.tabla_stats_partido.item(fila, 0).text(),
                 'equipo': self.tabla_stats_partido.item(fila, 1).text(),
-                'goles': int(self.tabla_stats_partido.item(fila, 2).text() or 0),
-                'amarillas': int(self.tabla_stats_partido.item(fila, 3).text() or 0),
-                'rojas': int(self.tabla_stats_partido.item(fila, 4).text() or 0)
+                'goles': self._safe_int(self.tabla_stats_partido.item(fila, 2).text()),
+                'amarillas': self._safe_int(self.tabla_stats_partido.item(fila, 3).text()),
+                'rojas': self._safe_int(self.tabla_stats_partido.item(fila, 4).text())
             }
             stats.append(stat)
-        
+
         return {
             'arbitro': self.comboArbitro.currentText(),
             'arbitro_nombre': self.comboArbitro.currentText(),
